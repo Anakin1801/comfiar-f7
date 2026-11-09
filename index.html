@@ -128,6 +128,8 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 nav button i{display:none;font-style:normal}
 #install{margin:0 0 10px auto;align-self:center}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.istep{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);line-height:1.5}
+.istep>span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#14200a;font:800 15px/26px "Barlow Condensed";text-align:center}
 /* ---------- VERSIÓN TELÉFONO ---------- */
 @media(max-width:640px){
   body{font-size:14.5px}
@@ -653,13 +655,43 @@ function setupPWA(){
   window.addEventListener('appinstalled',()=>{ b.hidden=true; toast('App instalada'); });
   b.onclick=async()=>{
     if(installEvt){ installEvt.prompt(); await installEvt.userChoice.catch(()=>{}); installEvt=null; return; }
-    modal(`<h3 style="margin:0 0 8px">Instalar Comfiar F7</h3>
-      <p><b>iPhone / iPad (Safari):</b> toca <b>Compartir</b> ⬆️ y luego <b>“Agregar a inicio”</b>.</p>
-      <p><b>Android (Chrome):</b> menú ⋮ → <b>“Instalar app”</b> o “Agregar a pantalla principal”.</p>
-      <p><b>PC (Chrome o Edge):</b> icono de instalar ⊕ al final de la barra de direcciones, o menú → “Instalar Comfiar F7”.</p>
-      <p class="note">Una vez instalada se abre como una app aparte y funciona sin internet.</p>
-      <button class="btn pri" style="width:100%;margin-top:8px" onclick="closeModal()">Entendido</button>`);
+    installGuide();
   };
+}
+const SHARE_IC = `<svg width="18" height="22" viewBox="0 0 18 22" style="vertical-align:-5px"><path d="M9 1v13M4.5 5.5 9 1l4.5 4.5" fill="none" stroke="#4da3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9H2.5v11.5h13V9H12" fill="none" stroke="#4da3ff" stroke-width="2" stroke-linejoin="round"/></svg>`;
+const ADD_IC = `<svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-4px"><rect x="1.5" y="1.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 6v8M6 10h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+const step = (n, html) => `<div class="istep"><span>${n}</span><div>${html}</div></div>`;
+function installGuide(UA = navigator.userAgent){
+  const IOS = /iPhone|iPad|iPod/.test(UA) || (/Macintosh/.test(UA) && navigator.maxTouchPoints>1);
+  const ANDROID = /Android/.test(UA);
+  const INAPP = /FBAN|FBAV|Instagram|WhatsApp|Line\/|Snapchat|TikTok|MicroMessenger|GSA\//.test(UA);
+  const link = location.href.split('#')[0];
+  const copyBtn = `<button class="btn pri" style="width:100%;margin-top:10px" id="icopy">📋 Copiar enlace</button>`;
+  let body;
+  if(INAPP){
+    body = `<div class="rule ko" style="margin-top:0">Estás viendo la app dentro de otra aplicación (WhatsApp, Instagram…). Desde aquí no se puede instalar.</div>
+      ${step(1, IOS ? `Toca <b>···</b> o el ícono de brújula 🧭 y elige <b>“Abrir en Safari”</b>.` : `Toca <b>⋮</b> y elige <b>“Abrir en Chrome”</b>.`)}
+      ${step(2, `Si no aparece esa opción, copia el enlace y pégalo en ${IOS?'<b>Safari</b>':'<b>Chrome</b>'}.`)}
+      ${copyBtn}`;
+  } else if(IOS){
+    const chrome = /CriOS|EdgiOS|FxiOS/.test(UA);
+    body = `${step(1, chrome
+        ? `Toca el botón <b>Compartir</b> ${SHARE_IC} junto a la barra de direcciones.`
+        : `Toca el botón <b>Compartir</b> ${SHARE_IC} de Safari (abajo; en iPad, arriba). Si no lo ves, toca <b>···</b> y luego <b>Compartir</b>.`)}
+      ${step(2, `Desliza hacia abajo y toca <b>“Agregar a inicio”</b> ${ADD_IC}. Si no aparece, toca <b>“Ver más”</b>.`)}
+      ${step(3, `Deja activado <b>“Abrir como app web”</b> y toca <b>Agregar</b>.`)}
+      ${step(4, `Listo: abre <b>Comfiar F7</b> desde el ícono en tu pantalla de inicio.`)}
+      <p class="note">Apple no permite instalar con un solo botón: este es el único camino en iPhone y iPad.${chrome?' Si no ves la opción, abre el enlace en Safari.':''}</p>`;
+  } else if(ANDROID){
+    body = `${step(1, `Abre el enlace en <b>Chrome</b>.`)}${step(2, `Toca el menú <b>⋮</b> (arriba a la derecha).`)}${step(3, `Elige <b>“Instalar app”</b> o <b>“Agregar a pantalla principal”</b>.`)}`;
+  } else {
+    body = `${step(1, `Abre el enlace en <b>Chrome</b> o <b>Edge</b>.`)}${step(2, `Haz clic en el icono de instalar ⊕ al final de la barra de direcciones, o en el menú → <b>“Instalar Comfiar F7”</b>.`)}
+      <p class="note">¿Quieres instalarla en el celular? Abre este enlace desde el teléfono:<br><b style="word-break:break-all">${esc(link)}</b></p>${copyBtn}`;
+  }
+  modal(`<h3 style="margin:0 0 10px">Instalar Comfiar F7 ${IOS?'en tu iPhone':ANDROID?'en tu Android':''}</h3>${body}
+    <p class="note">Una vez instalada se abre como una app aparte y funciona sin internet.</p>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="closeModal()">Entendido</button>`);
+  const c=$('#icopy'); if(c) c.onclick=async()=>{ try{ await navigator.clipboard.writeText(link); toast('Enlace copiado'); }catch(e){ toast(link); } };
 }
 (function boot(){
   if(!S.matches.length && !S.lineup && !Object.keys(S.stats||{}).length){ try{ const ls=JSON.parse(localStorage.getItem('comfiar_f7_state')||'null'); if(ls){ S=ls; S.matches=S.matches||[]; S.unavailable=S.unavailable||[]; unavailable=new Set(S.unavailable); IDEAL=S.lineup?JSON.parse(JSON.stringify(S.lineup)):null; LIVE=IDEAL?JSON.parse(JSON.stringify(IDEAL)):null; } }catch(e){} }
