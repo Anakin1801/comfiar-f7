@@ -1,0 +1,24 @@
+{
+  "name": "Comfiar F7 · Centro de mando",
+  "short_name": "Comfiar F7",
+  "description": "Plantilla, equipo ideal, cambios y torneo del equipo de Fútbol 7 de Comfiar.",
+  "lang": "es",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b1410",
+  "theme_color": "#0b1410",
+  "categories": ["sports", "utilities"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Equipo ideal", "url": "./index.html#ideal" },
+    { "name": "Cambios", "url": "./index.html#cambios" },
+    { "name": "Torneo", "url": "./index.html#torneo" }
+  ]
+}
