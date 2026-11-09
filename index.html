@@ -126,7 +126,11 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .srow em{font-style:normal;font-size:11px;font-weight:700;text-align:right}
 /* PWA / header */
 nav button i{display:none;font-style:normal}
-#install{margin:0 0 10px auto;align-self:center}
+.hact{margin:0 0 10px auto;align-self:center;display:flex;gap:6px}
+#dtbtn.on{border-color:var(--acc);color:var(--acc)}
+body.viewer nav button[data-v="cambios"]{display:none}
+.login input{width:100%;margin-top:4px}
+.login label{display:block;margin-bottom:10px}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .istep{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);line-height:1.5}
 .istep>span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#14200a;font:800 15px/26px "Barlow Condensed";text-align:center}
@@ -138,7 +142,7 @@ nav button i{display:none;font-style:normal}
   .brand h1{font-size:22px}
   .brand p{display:none}
   .brand{padding-bottom:8px}
-  #install{margin:0 0 8px auto}
+  .hact{margin:0 0 8px auto}
   nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(18,31,25,.97);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);gap:0}
   nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;padding:8px 2px 9px;border-bottom:0;border-top:3px solid transparent}
   nav button.on{border-color:var(--acc)}
@@ -176,7 +180,7 @@ nav button i{display:none;font-style:normal}
     <button data-v="cambios"><i>🔄</i>Cambios</button>
     <button data-v="torneo"><i>🏆</i>Torneo</button>
   </nav>
-  <button class="btn sm" id="install" hidden>📲 Instalar app</button>
+  <div class="hact"><button class="btn sm" id="install" hidden>📲 Instalar app</button><button class="btn sm" id="dtbtn" hidden>🔒 DT</button></div>
 </div></header>
 <main>
   <section id="v-plantilla" class="on"></section>
@@ -306,7 +310,8 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 /* ---------- navegación ---------- */
 const VIEWS=['plantilla','ideal','cambios','torneo'];
-function show(v){ if(!VIEWS.includes(v)) v='plantilla'; closeModal(); scrollTo(0,0);
+let VIEW='plantilla';
+function show(v){ if(!VIEWS.includes(v) || (v==='cambios' && !canEdit())) v='plantilla'; VIEW=v; closeModal(); scrollTo(0,0);
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   ({plantilla:renderPlantilla,ideal:renderIdeal,cambios:renderCambios,torneo:renderTorneo})[v]();
@@ -339,14 +344,14 @@ function renderPlantilla(){
   </div>
   <div class="grid pgrid">${list.map(p=>`
     <div class="card pc">
-      <button class="btn sm edit" data-edit="${p.id}" title="Editar estadísticas">✎ Editar</button>
+      ${canEdit()?`<button class="btn sm edit" data-edit="${p.id}" title="Editar estadísticas">✎ Editar</button>`:''}
       <div class="top"><div class="ovr">${Math.round(p.ovr)}</div>
         <div><h3>${p.n}</h3><div class="meta">${p.e} años · ${p.pie}</div>
         <span class="tag t-pos">${p.pos}</span> ${p.e>=40?'<span class="tag t-vet">40+</span>':''} ${p.tired?'<span class="tag t-tired">Se cansa</span>':''} ${S.stats[p.id]?'<span class="tag t-edit">Editado</span>':''}</div></div>
       <div class="body">${radar(p)}<div class="bars">${ATTR.map(([k,l])=>`<div class="bar"><span>${l}</span><i><b style="width:${p[k]}%;background:${col(p[k])}"></b></i><span>${p[k]}</span></div>`).join('')}</div></div>
       <p class="desc">${p.desc}</p>
     </div>`).join('')}</div>
-  <p class="note">Toca “✎ Editar” para ajustar las estadísticas con las barras. Al editar a un jugador de campo, su puntaje se recalcula como el promedio de sus 6 atributos; el del arquero se ajusta aparte (el de Curbelo en el Excel es 70, aunque el promedio de sus atributos es 46,7).</p>`;
+  ${canEdit()?'':'<!--'}<p class="note">Toca “✎ Editar” para ajustar las estadísticas con las barras. Al editar a un jugador de campo, su puntaje se recalcula como el promedio de sus 6 atributos; el del arquero se ajusta aparte (el de Curbelo en el Excel es 70, aunque el promedio de sus atributos es 46,7).</p>${canEdit()?'':'-->'}`;
   $('#pf').onchange=e=>{pFilter=e.target.value;renderPlantilla();};
   $('#ps').onchange=e=>{pSort=e.target.value;renderPlantilla();};
   document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editStats(b.dataset.edit));
@@ -414,6 +419,7 @@ function ruleHTML(L){ const n = onField(L).filter(VET).length;
   return n>=MIN_VET ? `<div class="rule ok">✔ Regla 40+ cumplida: ${n} jugador${n>1?'es':''} de 40 o más en cancha</div>`
                     : `<div class="rule ko">✖ Regla 40+ incumplida: hay ${n} y se necesitan mínimo ${MIN_VET}</div>`; }
 function renderIdeal(){
+  if(!canEdit()) return renderAlineacion();
   if(!IDEAL) regen();
   const L = IDEAL, ts = L?teamScore(L,iMode):null;
   const bench = avail().filter(id=>!onField(L).includes(id));
@@ -586,8 +592,8 @@ function renderTorneo(){
     <div class="card kpi"><div class="v">${GF}:${GC}</div><div class="l">Goles a favor : en contra</div></div>
     <div class="card kpi"><div class="v">${top&&top.g?top.p.n:'—'}</div><div class="l">Goleador ${top&&top.g?'('+top.g+')':''}</div></div>
   </div>
-  <div class="two">
-    <div class="card"><h3 style="margin:0 0 8px">Registrar partido</h3>
+  <div class="${canEdit()?'two':''}">
+    ${canEdit()?`<div class="card"><h3 style="margin:0 0 8px">Registrar partido</h3>
       <div class="row"><label class="ctl" style="flex:1">Rival<input type="text" id="tr" placeholder="Nombre del rival"></label><label class="ctl">Fecha<input type="date" id="td"></label></div>
       <div class="row" style="margin-top:8px"><label class="ctl">Goles a favor<input type="number" id="tgf" min="0" value="0"></label><label class="ctl">Goles en contra<input type="number" id="tgc" min="0" value="0"></label></div>
       <div class="tw"><table style="margin-top:10px"><tr><th>Jugó</th><th>Jugador</th><th class="n">Gol</th><th class="n">Asist</th><th class="n">🟨</th><th class="n">🟥</th></tr>
@@ -596,7 +602,7 @@ function renderTorneo(){
         <td class="n"><input type="number" class="tya" min="0" max="2" value="0"></td><td class="n"><input type="number" class="tro" min="0" max="1" value="0"></td></tr>`).join('')}
       </table></div>
       <button class="btn pri" id="tsave" style="margin-top:12px;width:100%">💾 Guardar partido</button>
-    </div>
+    </div>`:''}
     <div>
       <div class="card"><h3 style="margin:0 0 8px">Estadísticas del torneo</h3>
         <div class="tw"><table><tr><th>Jugador</th><th class="n">PJ</th><th class="n">Goles</th><th class="n">Asist</th><th class="n">🟨</th><th class="n">🟥</th></tr>
@@ -605,14 +611,15 @@ function renderTorneo(){
       </div>
       <div class="card" style="margin-top:14px"><h3 style="margin:0 0 4px">Partidos</h3>
         ${M.length?M.map((m,ix)=>`<div class="mline"><div><b>vs ${esc(m.rival)}</b><div class="mut" style="font-size:12px">${esc(m.fecha||'')}${scorers(m)}</div></div>
-          <div class="row"><span class="score res-${m.gf>m.gc?'W':m.gf==m.gc?'D':'L'}">${m.gf} - ${m.gc}</span><button class="btn sm" data-del="${ix}">Borrar</button></div></div>`).join(''):'<p class="mut">Aún no hay partidos registrados.</p>'}
+          <div class="row"><span class="score res-${m.gf>m.gc?'W':m.gf==m.gc?'D':'L'}">${m.gf} - ${m.gc}</span>${canEdit()?`<button class="btn sm" data-del="${ix}">Borrar</button>`:''}</div></div>`).join(''):'<p class="mut">Aún no hay partidos registrados.</p>'}
       </div>
-      <div class="row" style="margin-top:10px"><button class="btn sm" id="tcopy">Copiar respaldo (JSON)</button></div>
+      ${canEdit()?'<div class="row" style="margin-top:10px"><button class="btn sm" id="tcopy">Copiar respaldo (JSON)</button></div>':''}
       <p class="note" id="savenote"></p>
     </div>
   </div>`;
+  $('#savenote').innerHTML = syncNote();
+  if(!canEdit()) return;
   $('#td').value = new Date().toISOString().slice(0,10);
-  $('#savenote').textContent = ART ? 'Los partidos y la alineación se guardan en esta página y los ve cualquiera con quien la compartas.' : 'Los datos se guardan solo en este navegador.';
   $('#tsave').onclick=()=>{
     const rival=$('#tr').value.trim(); if(!rival){ toast('Escribe el nombre del rival'); return; }
     const pl={}; document.querySelectorAll('#v-torneo tr[data-id]').forEach(tr=>{ const q=c=>+tr.querySelector(c).value||0; const j=tr.querySelector('.tj').checked;
@@ -636,8 +643,113 @@ function buildDoc(){
   const json = JSON.stringify(S).replace(/</g,'\\u003c');
   return PRISTINE.replace(/(<script id="state" type="application\/json">)[\s\S]*?(<\/script>)/, (_,a,b)=>a+json+b);
 }
+/* ---------- NUBE (Firebase): el DT edita, todos ven ---------- */
+const FB_CONFIG = {
+  apiKey: "AIzaSyDho7j9WOmRMXtkeNI5FMt9UM3IK_zYAbo",
+  authDomain: "comfiar-f7.firebaseapp.com",
+  projectId: "comfiar-f7",
+  storageBucket: "comfiar-f7.firebasestorage.app",
+  messagingSenderId: "26384848149",
+  appId: "1:26384848149:web:2f01d3f9a0fe156c7e851c"
+};
+const FB_VER = '10.14.1';
+// Correos que pueden editar. La protección real está en las reglas de Firestore (ver CLAUDE.md).
+const EDITORS = ['elkin.cuadros97.ec@gmail.com'];
+let MODE='cargando', FB=null, user=null, lastUpd=null, remoteExists=null;
+const isDT = () => !!(user && EDITORS.includes(String(user.email||'').toLowerCase()));
+const canEdit = () => MODE==='local' || isDT();
+const plain = o => JSON.parse(JSON.stringify(o));
+const cacheLocal = () => { try{ localStorage.setItem('comfiar_f7_state', JSON.stringify(S)); }catch(e){} };
+function rerender(){ if($('#modal').classList.contains('on')) return; // no interrumpir una edición abierta
+  if(VIEW==='cambios' && !canEdit()) return show('plantilla');
+  ({plantilla:renderPlantilla,ideal:renderIdeal,cambios:renderCambios,torneo:renderTorneo})[VIEW](); }
+function syncNote(){
+  if(MODE==='nube') return `☁️ ${isDT()?'Lo que guardes lo ven todos al instante.':'Datos del DT, se actualizan solos.'}${lastUpd?' Última actualización: '+lastUpd.toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'})+'.':''}`;
+  if(MODE==='cargando') return 'Conectando con la nube…';
+  return ART ? 'Los datos se guardan en esta página.' : 'Sin conexión con la nube: los datos se guardan solo en este dispositivo.';
+}
+function updateRoleUI(){
+  document.body.classList.toggle('viewer', !canEdit());
+  const ideal=document.querySelector('#nav button[data-v="ideal"]');
+  ideal.innerHTML = canEdit() ? '<i>⚽</i>Equipo ideal' : '<i>⚽</i>Alineación';
+  const b=$('#dtbtn'); b.hidden = MODE!=='nube';
+  b.textContent = isDT() ? '✓ DT' : user ? '👤 Sesión' : '🔒 DT'; b.classList.toggle('on', isDT());
+  rerender();
+}
+function applyRemote(d){
+  S.matches=d.matches||[]; S.lineup=d.lineup||null; S.unavailable=d.unavailable||[]; S.stats=d.stats||{};
+  unavailable=new Set(S.unavailable); applyStats(); computeRS();
+  if(!canEdit() || !IDEAL) IDEAL = S.lineup ? plain(S.lineup) : null;
+  lastUpd = d.updatedAt && d.updatedAt.toDate ? d.updatedAt.toDate() : null;
+  cacheLocal();
+}
+async function initCloud(){
+  if(!/^https?:$/.test(location.protocol) || window.claude){ MODE='local'; return updateRoleUI(); }
+  try{
+    const base=`https://www.gstatic.com/firebasejs/${FB_VER}/`;
+    const [A,Au,F] = await Promise.all(['firebase-app.js','firebase-auth.js','firebase-firestore.js'].map(f=>import(base+f)));
+    const app=A.initializeApp(FB_CONFIG);
+    let db; try{ db=F.initializeFirestore(app,{localCache:F.persistentLocalCache()}); }catch(e){ db=F.getFirestore(app); }
+    FB={Au,F,auth:Au.getAuth(app),ref:F.doc(db,'equipo','estado')};
+    MODE='nube';
+    Au.onAuthStateChanged(FB.auth, u=>{ user=u; updateRoleUI(); if(isDT() && remoteExists===false) save('Datos subidos a la nube'); });
+    F.onSnapshot(FB.ref, snap=>{
+      if(snap.metadata.hasPendingWrites) return; // es mi propio guardado
+      remoteExists = snap.exists();
+      if(remoteExists) applyRemote(snap.data());
+      else if(isDT()) save('Datos subidos a la nube'); // primera vez: sube lo que el DT tenía guardado
+      updateRoleUI();
+    }, err=>{ console.warn('Firestore:', err.code||err); });
+    updateRoleUI();
+  }catch(e){ console.warn('Nube no disponible:', e); MODE='local'; updateRoleUI(); }
+}
+const AUTH_ERR = {'auth/invalid-credential':'Correo o contraseña incorrectos.','auth/wrong-password':'Correo o contraseña incorrectos.','auth/user-not-found':'Correo o contraseña incorrectos.','auth/invalid-email':'El correo no es válido.','auth/too-many-requests':'Demasiados intentos. Espera unos minutos.','auth/network-request-failed':'Sin conexión a internet.','auth/missing-password':'Escribe la contraseña.'};
+function dtDialog(){
+  if(user){
+    modal(`<h3 style="margin:0 0 8px">${isDT()?'Modo DT activo':'Sesión iniciada'}</h3>
+      <p>Cuenta: <b>${esc(user.email)}</b></p>
+      ${isDT()?'<p class="mut">Puedes editar estadísticas, armar la alineación, hacer cambios y registrar partidos. Todo lo que guardes lo ven los jugadores.</p>':'<div class="rule ko">Esta cuenta no tiene permiso para editar. Solo puedes ver.</div>'}
+      <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" onclick="closeModal()">Cerrar</button><button class="btn" id="dout">Cerrar sesión</button></div>`);
+    $('#dout').onclick=async()=>{ await FB.Au.signOut(FB.auth); closeModal(); IDEAL=S.lineup?plain(S.lineup):null; LIVE=null; updateRoleUI(); toast('Sesión cerrada'); };
+    return;
+  }
+  modal(`<h3 style="margin:0 0 4px">Acceso del DT</h3><p class="mut" style="margin:0 0 12px">Solo el cuerpo técnico puede editar. Los jugadores no necesitan iniciar sesión.</p>
+    <form class="login" id="dform">
+      <label class="ctl">Correo<input type="email" id="dmail" autocomplete="username" required></label>
+      <label class="ctl">Contraseña<input type="password" id="dpass" autocomplete="current-password" required></label>
+      <div class="rule ko" id="derr" style="display:none"></div>
+      <button class="btn pri" style="width:100%" type="submit">Entrar</button>
+    </form>
+    <div class="row" style="justify-content:space-between;margin-top:10px"><button class="btn sm" id="dreset">¿Olvidaste la contraseña?</button><button class="btn sm" onclick="closeModal()">Cancelar</button></div>`);
+  const err = m => { const e=$('#derr'); e.textContent=m; e.style.display=m?'flex':'none'; };
+  $('#dform').onsubmit=async e=>{ e.preventDefault(); err('');
+    try{ await FB.Au.signInWithEmailAndPassword(FB.auth, $('#dmail').value.trim(), $('#dpass').value); closeModal(); updateRoleUI(); toast(isDT()?'Modo DT activado':'Sesión iniciada'); }
+    catch(x){ err(AUTH_ERR[x.code]||('No se pudo entrar ('+(x.code||x.message)+')')); } };
+  $('#dreset').onclick=async()=>{ const m=$('#dmail').value.trim(); if(!m) return err('Escribe tu correo arriba y vuelve a tocar aquí.');
+    try{ await FB.Au.sendPasswordResetEmail(FB.auth,m); err(''); toast('Te enviamos un correo para cambiar la contraseña'); }catch(x){ err(AUTH_ERR[x.code]||'No se pudo enviar el correo.'); } };
+}
+function renderAlineacion(){
+  const L=S.lineup && onField(S.lineup).length===7 ? S.lineup : null;
+  if(!L){ $('#v-ideal').innerHTML=`<div class="card"><h3 style="margin:0 0 6px">Alineación</h3><p class="mut">${MODE==='cargando'?'Cargando…':'El DT todavía no ha publicado la alineación.'}</p></div>`; return; }
+  const bench=P.map(p=>p.id).filter(id=>!onField(L).includes(id) && !unavailable.has(id));
+  const out=P.filter(p=>unavailable.has(p.id));
+  $('#v-ideal').innerHTML=`<div class="two"><div>${pitchHTML(L,{mode:'equilibrado'})}<p class="note">El número es el rendimiento de cada jugador en su posición.</p></div>
+    <div><div class="card"><div class="ctl">Alineación del DT · ${L.formation}</div><div class="ovr">${f1(teamScore(L,'equilibrado'))}</div><div class="ctl">Fuerza del equipo</div>${ruleHTML(L)}
+      <div class="lines"><div><span>Ataque</span><b>${f1(lineAvg(L,['t','r']))}</b></div><div><span>Defensa</span><b>${f1(lineAvg(L,['d']))}</b></div><div><span>Físico / velocidad</span><b>${f1(lineAvg(L,['f','v']))}</b></div></div></div>
+      <div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Suplentes</h3><div class="chips">${bench.map(id=>`<span class="chip ${VET(id)?'vet':''}">${BY[id].n}</span>`).join('')||'<span class="mut">Sin suplentes</span>'}</div>
+      ${out.length?`<h3 style="margin:12px 0 6px">No disponibles</h3><div class="chips">${out.map(p=>`<span class="chip off">${p.n}</span>`).join('')}</div>`:''}</div>
+      <p class="note">${syncNote()}</p></div></div>`;
+}
 async function save(msg){
   S.unavailable=[...unavailable];
+  if(MODE==='nube'){
+    if(!isDT()){ toast('Solo el DT puede guardar cambios'); return; }
+    cacheLocal();
+    FB.F.setDoc(FB.ref, {...plain(S), updatedAt:FB.F.serverTimestamp(), updatedBy:user.email})
+      .then(()=>{ remoteExists=true; })
+      .catch(e=>toast(e.code==='permission-denied'?'Sin permiso para guardar en la nube':'No se pudo guardar en la nube'));
+    toast(msg+' · visible para todos'); return;
+  }
   if(ART){ try{ await ART.publish(buildDoc()); toast(msg); return; }
     catch(e){ const c=e&&(e.code||e.name||e.message)||''; if(String(c).includes('conflict')){ toast('Otra persona guardó al mismo tiempo; recargando'); return; }
       if(/not_granted|not_writer/.test(String(c))){ toast('Solo lectura: no puedes guardar cambios'); return; } } }
@@ -696,8 +808,10 @@ function installGuide(UA = navigator.userAgent){
 (function boot(){
   if(!S.matches.length && !S.lineup && !Object.keys(S.stats||{}).length){ try{ const ls=JSON.parse(localStorage.getItem('comfiar_f7_state')||'null'); if(ls){ S=ls; S.matches=S.matches||[]; S.unavailable=S.unavailable||[]; unavailable=new Set(S.unavailable); IDEAL=S.lineup?JSON.parse(JSON.stringify(S.lineup)):null; LIVE=IDEAL?JSON.parse(JSON.stringify(IDEAL)):null; } }catch(e){} }
   applyStats(); computeRS();
-  show(location.hash.slice(1));
+  updateRoleUI(); show(location.hash.slice(1));
   setupPWA();
+  $('#dtbtn').onclick=()=>FB&&dtDialog();
+  initCloud();
   if(window.claude && typeof window.claude.use==='function'){
     window.claude.use('artifact').then(a=>{ ART=a; if(location.hash==='#torneo') renderTorneo(); }).catch(()=>{});
   }

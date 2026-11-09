@@ -1,6 +1,6 @@
 // Service worker de Comfiar F7: permite instalar la app y usarla sin internet.
 // Sube VERSION cada vez que publiques cambios para que los teléfonos se actualicen.
-const VERSION = 'comfiar-f7-20261109-085833';
+const VERSION = 'comfiar-f7-20261109-092127';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
@@ -27,10 +27,11 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Íconos, manifiesto y fuentes de Google: copia guardada y se refresca en segundo plano.
+  // Íconos, manifiesto, fuentes de Google y la librería de Firebase: copia guardada y se refresca en segundo plano.
   const sameOrigin = url.origin === location.origin;
   const fonts = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
-  if (!sameOrigin && !fonts) return;
+  const firebaseLib = url.hostname === 'www.gstatic.com' && url.pathname.startsWith('/firebasejs/');
+  if (!sameOrigin && !fonts && !firebaseLib) return; // Firestore y Auth van siempre directo a la red
   e.respondWith(caches.match(req).then(hit => {
     const net = fetch(req).then(r => {
       if (r.ok || r.type === 'opaque') { const copy = r.clone(); caches.open(VERSION).then(c => c.put(req, copy)); }
