@@ -15,16 +15,25 @@
 <meta name="apple-mobile-web-app-title" content="Comfiar F7">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>try{ if(localStorage.getItem('comfiar_theme')==='light') document.documentElement.dataset.theme='light'; }catch(e){}</script>
 <style>
 :root{
   --bg:#0b1410;--panel:#121f19;--panel2:#18291f;--line:#24392d;--txt:#e8f1ec;--mut:#8fa89a;
   --acc:#d4f53c;--acc2:#38d39f;--warn:#ff9f43;--bad:#ff5d5d;--vet:#7cc4ff;
   --grass1:#1d6b3a;--grass2:#1a6235;
+  --hdr:rgba(11,20,16,.94);--navbg:rgba(18,31,25,.97);--desc:#c4d3ca;--onacc:#14200a;
+  --c80:#d4f53c;--c65:#38d39f;--c50:#ff9f43;--c0:#ff5d5d;
+}
+:root[data-theme=light]{
+  --bg:#eef2ec;--panel:#ffffff;--panel2:#f1f5ef;--line:#d3ddd4;--txt:#10201a;--mut:#56695e;
+  --acc:#3b7a10;--acc2:#0b8a5f;--warn:#b85a00;--bad:#c62828;--vet:#1565c0;
+  --hdr:rgba(238,242,236,.96);--navbg:rgba(255,255,255,.97);--desc:#2f4237;--onacc:#ffffff;
+  --c80:#4f9a12;--c65:#0b9a69;--c50:#d97706;--c0:#c62828;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.45 Inter,system-ui,sans-serif}
 h1,h2,h3,.cond{font-family:"Barlow Condensed",Inter,sans-serif;letter-spacing:.3px}
-header{position:sticky;top:0;z-index:20;background:rgba(11,20,16,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:20;background:var(--hdr);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .hwrap{max-width:1180px;margin:0 auto;padding:12px 16px 0;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 24px}
 .brand h1{margin:0;font-size:26px;line-height:1;text-transform:uppercase}
 .brand h1 span{color:var(--acc)}
@@ -32,22 +41,30 @@ header{position:sticky;top:0;z-index:20;background:rgba(11,20,16,.94);backdrop-f
 nav{display:flex;gap:2px;overflow-x:auto}
 nav button{background:none;border:0;color:var(--mut);font:700 15px "Barlow Condensed";text-transform:uppercase;letter-spacing:.6px;padding:10px 14px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
 nav button.on{color:var(--txt);border-color:var(--acc)}
+nav button i{display:none;font-style:normal}
+body.viewer nav button[data-v="cambios"]{display:none}
+.hact{margin:0 0 10px auto;align-self:center;display:flex;gap:6px}
+#dtbtn.on{border-color:var(--acc);color:var(--acc)}
 main{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
 section{display:none}section.on{display:block}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .ctl{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
-select,input[type=text],input[type=date],input[type=number]{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
-input[type=number]{width:56px;padding:6px}
+select,input[type=text],input[type=date],input[type=time],input[type=number],input[type=email],input[type=password],textarea{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit}
+textarea{width:100%;resize:vertical;min-height:64px}
 .btn{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:9px 14px;font:600 13px Inter;cursor:pointer}
 .btn:hover{border-color:var(--mut)}
-.btn.pri{background:var(--acc);color:#14200a;border-color:var(--acc)}
+.btn.pri{background:var(--acc);color:var(--onacc);border-color:var(--acc)}
+.btn.bad{color:var(--bad);border-color:var(--bad)}
 .btn.sm{padding:5px 10px;font-size:12px}
+.btn.sel{outline:2px solid var(--acc);outline-offset:1px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
 .mut{color:var(--mut)}
 .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.4px}
 .t-vet{background:rgba(124,196,255,.15);color:var(--vet)}
 .t-tired{background:rgba(255,159,67,.15);color:var(--warn)}
-.t-pos{background:rgba(212,245,60,.12);color:var(--acc)}
+.t-pos{background:rgba(127,160,40,.15);color:var(--acc)}
+.t-edit{background:rgba(56,211,159,.15);color:var(--acc2)}
+.t-bad{background:rgba(255,93,93,.14);color:var(--bad)}
 .grid{display:grid;gap:14px}
 /* plantilla */
 .pgrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
@@ -55,47 +72,82 @@ input[type=number]{width:56px;padding:6px}
 .pc .top{display:flex;gap:12px;align-items:flex-start}
 .ovr{font:800 44px/0.9 "Barlow Condensed";color:var(--acc)}
 .pc h3{margin:0;font-size:24px;line-height:1;text-transform:uppercase}
+.pc h3 small{font-size:16px;color:var(--mut);margin-left:4px}
 .pc .meta{font-size:12px;color:var(--mut);margin:3px 0 6px}
 .pc .body{display:flex;gap:10px;align-items:center;margin-top:8px}
+.pc .edit{position:absolute;top:12px;right:12px}
+.pc .chev{display:none}
 .bars{flex:1;display:grid;gap:3px}
 .bar{display:grid;grid-template-columns:28px 1fr 24px;gap:6px;align-items:center;font-size:11px;color:var(--mut)}
 .bar i{display:block;height:6px;border-radius:3px;background:var(--line);position:relative;overflow:hidden}
 .bar i b{position:absolute;inset:0 auto 0 0;border-radius:3px}
 .bar span:last-child{color:var(--txt);text-align:right;font-weight:600}
-.pc .desc{font-size:12.5px;color:#c4d3ca;margin:10px 0 0;border-top:1px dashed var(--line);padding-top:8px}
+.pc .desc{font-size:12.5px;color:var(--desc);margin:10px 0 0;border-top:1px dashed var(--line);padding-top:8px}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
 .kpi .v{font:800 34px/1 "Barlow Condensed"}
 .kpi .l{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px}
-/* pitch */
+/* cancha */
 .two{display:grid;grid-template-columns:minmax(300px,440px) 1fr;gap:18px;align-items:start}
 @media(max-width:820px){.two{grid-template-columns:1fr}}
 .pitch{position:relative;aspect-ratio:2/3;border-radius:14px;overflow:hidden;
   background:repeating-linear-gradient(0deg,var(--grass1) 0 10%,var(--grass2) 10% 20%);border:2px solid #2c8a4d}
 .pitch .mk{position:absolute;border:2px solid rgba(255,255,255,.35)}
 .slot{position:absolute;transform:translate(-50%,-50%);width:86px;text-align:center;cursor:pointer}
-.slot .dot{width:52px;height:52px;margin:0 auto;border-radius:50%;background:#0d1a13;border:2px solid var(--acc);display:flex;align-items:center;justify-content:center;font:800 20px "Barlow Condensed";color:var(--acc);box-shadow:0 4px 12px rgba(0,0,0,.4);position:relative}
-.slot.vet .dot{border-color:var(--vet);color:var(--vet)}
-.slot.empty .dot{border-style:dashed;color:var(--mut);border-color:var(--mut)}
-.slot .nm{margin-top:4px;font:700 14px/1 "Barlow Condensed";text-transform:uppercase;background:rgba(0,0,0,.55);padding:3px 6px;border-radius:5px;display:inline-block}
-.slot .rl{font-size:10px;color:#d6e6dc;margin-top:2px}
+.slot .dot{width:52px;height:52px;margin:0 auto;border-radius:50%;background:#0d1a13;border:2px solid #d4f53c;display:flex;align-items:center;justify-content:center;font:800 20px "Barlow Condensed";color:#d4f53c;box-shadow:0 4px 12px rgba(0,0,0,.4);position:relative}
+.slot.vet .dot{border-color:#7cc4ff;color:#7cc4ff}
+.slot.empty .dot{border-style:dashed;color:#8fa89a;border-color:#8fa89a}
+.slot .nm{margin-top:4px;font:700 14px/1 "Barlow Condensed";text-transform:uppercase;background:rgba(0,0,0,.55);color:#fff;padding:3px 6px;border-radius:5px;display:inline-block}
+.slot .rl{font-size:10px;color:#e3efe7;margin-top:2px;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 .slot .en{height:4px;width:46px;margin:3px auto 0;background:rgba(0,0,0,.5);border-radius:2px;overflow:hidden}
 .slot .en b{display:block;height:100%}
-.slot .vb{position:absolute;top:-4px;right:-6px;background:var(--vet);color:#0b1410;font:800 10px Inter;border-radius:99px;padding:1px 4px}
+.slot .vb{position:absolute;top:-4px;right:-6px;background:#7cc4ff;color:#0b1410;font:800 10px Inter;border-radius:99px;padding:1px 4px}
+.slot .gb{position:absolute;top:-6px;left:-8px;background:#fff;color:#0b1410;font:800 11px Inter;border-radius:99px;padding:1px 5px}
 .rule{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:600;margin:12px 0}
 .rule.ok{background:rgba(56,211,159,.12);color:var(--acc2)}
 .rule.ko{background:rgba(255,93,93,.12);color:var(--bad)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{border:1px solid var(--line);background:var(--panel2);color:var(--txt);border-radius:99px;padding:5px 11px;font-size:12.5px;cursor:pointer}
 .chip.off{opacity:.4;text-decoration:line-through}
+.chip.lock{opacity:.55;cursor:default}
 .chip.vet{border-color:rgba(124,196,255,.5)}
+.chip.si{border-color:var(--acc2);color:var(--acc2)}
+.chip.no{border-color:var(--bad);color:var(--bad)}
 table{width:100%;border-collapse:collapse}
 th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
 th{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .lines{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .lines div{background:var(--panel2);border-radius:10px;padding:8px 10px}
 .lines b{display:block;font:800 26px/1 "Barlow Condensed"}
 .lines span{font-size:11px;color:var(--mut);text-transform:uppercase}
+/* próximo partido / en vivo */
+.nextc{margin-bottom:14px;border-color:rgba(127,160,40,.45)}
+.nextc h3{margin:2px 0 0;font-size:26px;text-transform:uppercase;line-height:1}
+.att{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.att .yn{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.att .yn .btn{padding:12px;font-size:15px}
+.att .yn .btn.si.sel{background:var(--acc2);color:#04140d;border-color:var(--acc2)}
+.att .yn .btn.no.sel{background:var(--bad);color:#fff;border-color:var(--bad)}
+.att .grp{font-size:12px;color:var(--mut);margin-top:6px}
+.livebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:10px 14px;border-radius:12px;background:rgba(255,93,93,.1);border:1px solid rgba(255,93,93,.35)}
+.livebar b{font:800 22px "Barlow Condensed"}
+.dotlive{width:9px;height:9px;border-radius:50%;background:var(--bad);animation:pul 1.4s infinite}
+@keyframes pul{50%{opacity:.25}}
+.livec{margin-bottom:14px}
+.livec.on{border-color:rgba(255,93,93,.5)}
+.sbig{display:grid;grid-template-columns:1fr auto auto auto 1fr;align-items:center;gap:10px;margin:6px 0 10px;font-family:"Barlow Condensed"}
+.sbig span{font-weight:700;font-size:18px;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sbig span:first-child{text-align:right}
+.sbig b{font-size:52px;line-height:1}
+.sbig i{font-style:normal;font-size:30px;color:var(--mut)}
+.lbtn{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.lbtn .btn{padding:12px 8px}
+.evs{margin-top:10px;display:grid;gap:4px}
+.ev{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:6px 8px;background:var(--panel2);border-radius:8px}
+.ev button{background:none;border:0;color:var(--mut);font-size:18px;cursor:pointer;padding:0 4px}
+.actg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.actg .btn{padding:16px 8px;font-size:16px}
 /* cambios */
 .erow{display:grid;grid-template-columns:110px 1fr 40px;gap:8px;align-items:center;padding:4px 0}
 .erow input[type=range]{width:100%;accent-color:var(--acc)}
@@ -105,82 +157,109 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .sug .t b{font-family:"Barlow Condensed";font-size:17px;text-transform:uppercase}
 .out{color:var(--bad)}.in{color:var(--acc2)}
 .why{font-size:12px;color:var(--mut);margin-top:2px}
-/* modal */
-#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
-#modal.on{display:flex}
-#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:420px;width:100%;max-height:85vh;overflow:auto;padding:16px}
-.pick{display:flex;justify-content:space-between;align-items:center;padding:9px 10px;border-radius:8px;cursor:pointer}
-.pick:hover{background:var(--panel2)}
-.pick.cur{outline:1px solid var(--acc)}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--acc);color:#14200a;font-weight:700;padding:10px 16px;border-radius:10px;z-index:60;display:none}
+.bestnow{display:none}
+/* torneo: contadores – / + */
+.mrows{display:grid;gap:8px;margin-top:10px}
+.mrow{background:var(--panel2);border-radius:10px;padding:8px 10px}
+.mrow .hd{display:flex;align-items:center;gap:10px;font-weight:600}
+.mrow .hd input{width:20px;height:20px;accent-color:var(--acc)}
+.mrow .cnt{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-top:6px}
+.stp{display:flex;align-items:center;justify-content:space-between;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:3px 4px 3px 8px;font-size:13px}
+.stp button{width:34px;height:32px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font:700 18px Inter;cursor:pointer}
+.stp b{min-width:22px;text-align:center;font:800 20px "Barlow Condensed"}
+.stp.big{font-size:12px;text-transform:uppercase;color:var(--mut)}
+.stp.big b{font-size:28px;color:var(--txt)}
 .mline{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:10px}
 .score{font:800 22px "Barlow Condensed"}
 .res-W{color:var(--acc2)}.res-D{color:var(--warn)}.res-L{color:var(--bad)}
 .note{font-size:12px;color:var(--mut);margin-top:8px}
+/* modal, avisos */
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+#modal.on{display:flex}
+#modal .box{background:var(--panel);border:1px solid var(--line);border-radius:14px;max-width:440px;width:100%;max-height:85vh;overflow:auto;padding:16px}
+.pick{display:flex;justify-content:space-between;align-items:center;padding:11px 10px;border-radius:8px;cursor:pointer}
+.pick:hover{background:var(--panel2)}
+.pick.cur{outline:1px solid var(--acc)}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--acc);color:var(--onacc);font-weight:700;padding:10px 16px;border-radius:10px;z-index:60;display:none}
+.upd{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));z-index:70;background:var(--panel);border:1px solid var(--acc);border-radius:12px;padding:8px 8px 8px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.35);font-weight:600;max-width:94vw}
+.form label{display:block;margin-bottom:10px}
+.form input,.form select{width:100%;margin-top:4px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.chk{display:flex !important;align-items:center;gap:8px;text-transform:none;font-size:13px;color:var(--txt)}
+.chk input{width:18px !important;height:18px;margin:0 !important;accent-color:var(--acc)}
 /* editor de estadísticas */
-.pc .edit{position:absolute;top:12px;right:12px}
-.t-edit{background:rgba(56,211,159,.15);color:var(--acc2)}
 .srow{display:grid;grid-template-columns:96px 1fr 30px 30px;gap:8px;align-items:center;padding:5px 0;font-size:13px}
 .srow input[type=range]{width:100%;accent-color:var(--acc);height:26px;cursor:pointer}
 .srow b{text-align:right;font:800 18px "Barlow Condensed";font-variant-numeric:tabular-nums}
 .srow em{font-style:normal;font-size:11px;font-weight:700;text-align:right}
-/* PWA / header */
-nav button i{display:none;font-style:normal}
-.hact{margin:0 0 10px auto;align-self:center;display:flex;gap:6px}
-#dtbtn.on{border-color:var(--acc);color:var(--acc)}
-body.viewer nav button[data-v="cambios"]{display:none}
-.login input{width:100%;margin-top:4px}
-.login label{display:block;margin-bottom:10px}
-.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
 .istep{display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);line-height:1.5}
-.istep>span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#14200a;font:800 15px/26px "Barlow Condensed";text-align:center}
+.istep>span{flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:var(--onacc);font:800 15px/26px "Barlow Condensed";text-align:center}
+.secth{margin:14px 0 6px;font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;font-family:Inter;font-weight:600}
 /* ---------- VERSIÓN TELÉFONO ---------- */
 @media(max-width:640px){
   body{font-size:14.5px}
   header{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)} /* si no, la barra fija queda atrapada en el header */
-  .hwrap{padding:calc(8px + env(safe-area-inset-top)) 14px 0;align-items:center;flex-wrap:nowrap}
-  .brand h1{font-size:22px}
+  .hwrap{padding:calc(8px + env(safe-area-inset-top)) 12px 0;align-items:center;flex-wrap:nowrap;gap:8px}
+  .brand h1{font-size:22px;white-space:nowrap}
   .brand p{display:none}
   .brand{padding-bottom:8px}
-  .hact{margin:0 0 8px auto}
-  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(18,31,25,.97);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);gap:0}
+  .hact{margin:0 0 8px auto;gap:5px}
+  .hact .btn{padding:6px 8px}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--navbg);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);gap:0}
   nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:12px;padding:8px 2px 9px;border-bottom:0;border-top:3px solid transparent}
   nav button.on{border-color:var(--acc)}
   nav button i{display:block;font-size:19px;line-height:1.1}
-  main{padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
+  main{padding:12px 12px calc(84px + env(safe-area-inset-bottom))}
   .toast{bottom:calc(78px + env(safe-area-inset-bottom));max-width:92vw;text-align:center}
   .card{padding:13px;border-radius:12px}
-  .kpis{grid-template-columns:repeat(2,1fr);gap:8px}
-  .kpi .v{font-size:28px}
+  /* franja de resumen deslizable */
+  .kpis{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:8px;margin:0 -12px 12px;padding:0 12px 2px;scrollbar-width:none}
+  .kpis::-webkit-scrollbar{display:none}
+  .kpis>.kpi{flex:0 0 40%;scroll-snap-align:start;padding:10px 12px}
+  .kpi .v{font-size:26px}
   .row>.ctl{flex:1 1 140px}
   .row>.ctl select{width:100%}
+  /* plantilla compacta: toca para desplegar */
+  .pgrid{gap:8px}
+  .pc{padding:10px 12px;cursor:pointer}
+  .pc .ovr{font-size:34px}
+  .pc h3{font-size:21px}
+  .pc .meta{margin:2px 0 4px}
+  .pc .chev{display:block;position:absolute;right:12px;top:14px;color:var(--mut);font-size:14px;transition:transform .2s}
+  .pc.open .chev{transform:rotate(180deg)}
+  .pc:not(.open) .body,.pc:not(.open) .desc,.pc:not(.open) .edit{display:none}
+  .pc .edit{position:static;margin-top:10px;width:100%}
   .slot{width:70px}
-  .slot .dot{width:42px;height:42px;font-size:17px}
+  .slot .dot{width:42px;height:42px;font-size:18px}
   .slot .nm{font-size:12px;padding:2px 4px}
   .slot .rl{font-size:9px}
   .lines b{font-size:22px}
   .sug{flex-wrap:wrap}
   .sug .btn{width:100%}
+  .bestnow{display:block;position:sticky;top:calc(46px + env(safe-area-inset-top));z-index:15;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+  .bestnow .sug{margin:6px 0 0;background:var(--panel)}
+  .sugall .sug:first-of-type{display:none}
   .erow{grid-template-columns:96px 1fr 40px}
   .erow input[type=range]{height:28px}
   #modal{align-items:flex-end;padding:0}
   #modal .box{max-width:none;border-radius:16px 16px 0 0;max-height:90vh;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
   .srow{grid-template-columns:84px 1fr 28px 28px}
   th,td{padding:6px 5px}
-  #v-torneo input[type=number]{width:44px;padding:5px}
+  .sbig b{font-size:44px}
+  .sbig span{font-size:15px}
 }
 </style>
 </head>
-<body>
+<body class="viewer">
 <header><div class="hwrap">
   <div class="brand"><h1>Comfiar <span>F7</span></h1><p>Centro de mando · Torneo nacional · Cancha sintética</p></div>
   <nav id="nav">
     <button data-v="plantilla" class="on"><i>👥</i>Plantilla</button>
-    <button data-v="ideal"><i>⚽</i>Equipo ideal</button>
+    <button data-v="ideal"><i>⚽</i>Alineación</button>
     <button data-v="cambios"><i>🔄</i>Cambios</button>
     <button data-v="torneo"><i>🏆</i>Torneo</button>
   </nav>
-  <div class="hact"><button class="btn sm" id="install" hidden>📲 Instalar app</button><button class="btn sm" id="dtbtn" hidden>🔒 DT</button></div>
+  <div class="hact"><button class="btn sm" id="install" hidden>📲 Instalar</button><button class="btn sm" id="thbtn" title="Modo claro / oscuro">☀️</button><button class="btn sm" id="dtbtn" hidden>🔒 DT</button></div>
 </div></header>
 <main>
   <section id="v-plantilla" class="on"></section>
@@ -193,11 +272,14 @@ body.viewer nav button[data-v="cambios"]{display:none}
 <script id="state" type="application/json">{"matches":[],"lineup":null,"unavailable":[]}</script>
 <script>
 const PRISTINE = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-let S; try { S = JSON.parse(document.getElementById('state').textContent); } catch(e){ S = {matches:[],lineup:null,unavailable:[]}; }
-S.matches = S.matches || []; S.unavailable = S.unavailable || [];
+let S; try { S = JSON.parse(document.getElementById('state').textContent); } catch(e){ S = {}; }
+function normS(){ S.matches=S.matches||[]; S.unavailable=S.unavailable||[]; S.stats=S.stats||{}; if(S.lineup===undefined) S.lineup=null;
+  if(S.next===undefined) S.next=null; if(S.live===undefined) S.live=null; if(S.roster===undefined) S.roster=null; }
+normS();
+const plain = o => o===undefined ? null : JSON.parse(JSON.stringify(o));
 
-/* ---------- DATOS (del Excel) ---------- */
-const P = [
+/* ---------- DATOS: plantilla inicial (del Excel). Si el DT la edita, se usa S.roster ---------- */
+const DEFAULT_ROSTER = [
  {id:'curbelo',n:'Curbelo',e:23,pie:'Diestro',pos:'Arquero',v:30,t:40,p:50,r:40,d:80,f:40,ovr:70,desc:'Arquero de buenos reflejos y seguro bajo los tres palos, pero con poco juego de pies y sin una salida limpia con el balón.'},
  {id:'veyker',n:'Veyker',e:35,pie:'Zurdo',pos:'Delantero',v:50,t:60,p:60,r:68,d:40,f:60,ovr:56.3,desc:'Zurdo con buena pegada, pero aporta poco en el repliegue defensivo y se asocia poco con sus compañeros.'},
  {id:'francisco',n:'Francisco',e:40,pie:'Zurdo',pos:'Alero',v:78,t:40,p:50,r:65,d:60,f:85,ovr:63,desc:'El de mejor ida y vuelta: excelente estado físico y recorre la banda todo el partido, pero toma malas decisiones con el balón en los pies.'},
@@ -211,12 +293,13 @@ const P = [
  {id:'ruben',n:'Rubén',e:47,pie:'Diestro',pos:'Delantero / Arquero',v:55,t:65,p:68,r:60,d:68,f:65,ovr:63.5,tired:1,desc:'Jugador polifuncional (delantero y arquero); suele rendir bien, aunque se le ve algo falto de ritmo.'},
  {id:'elkin',n:'Elkin',e:29,pie:'Diestro',pos:'Mediocentro',v:80,t:80,p:90,r:85,d:70,f:70,ovr:79.2,tired:1,desc:'El capitán, el 10, el volante creativo: el que más imagina y genera jugadas de gol. Su principal debilidad es el estado físico.'}
 ];
-const ORIG = JSON.parse(JSON.stringify(P)); // valores originales del Excel
-const BY = Object.fromEntries(P.map(p=>[p.id,p]));
-const VET = id => BY[id].e >= 40;
+const P = [];        // jugadores con las estadísticas editadas aplicadas (incluye dados de baja)
+const BY = {};
+let BASE = [];       // plantilla base (valores originales de cada jugador)
+const E = {};        // energía en vivo (pestaña Cambios)
 const ATTR = [['v','VEL'],['t','TIR'],['p','PAS'],['r','REG'],['d','DEF'],['f','FÍS']];
+const ATTR_FULL = {v:'Velocidad',t:'Tiro',p:'Pase',r:'Regate',d:'Defensa',f:'Físico'};
 const ROLE_NAME = {POR:'Arquero',DEF:'Defensa',MED:'Volante',DEL:'Delantero'};
-const ROLE_AB = {POR:'POR',DEF:'DEF',MED:'VOL',DEL:'DEL'};
 const FIT = {
  'Arquero':{POR:1,DEF:.5,MED:.5,DEL:.5},
  'Defensa':{POR:.35,DEF:1,MED:.8,DEL:.6},
@@ -233,25 +316,29 @@ const MODES = {
 };
 const FORMS = {'2-3-1':{DEF:2,MED:3,DEL:1},'3-2-1':{DEF:3,MED:2,DEL:1},'2-2-2':{DEF:2,MED:2,DEL:2},'3-1-2':{DEF:3,MED:1,DEL:2},'2-1-3':{DEF:2,MED:1,DEL:3}};
 const MIN_VET = 2;
+const VET = id => !!BY[id] && BY[id].e >= 40;
+const isGK = p => p.pos==='Arquero';
+const avgOvr = p => Math.round(ATTR.reduce((s,[k])=>s+(+p[k]||0),0)/ATTR.length*10)/10;
+const ACT = () => P.filter(p=>!p.out);
+const nm = id => BY[id] ? BY[id].n : '¿?';
+const hasNum = p => p && p.num!==undefined && p.num!==null && p.num!=='';
 
 function roleScore(p, role, mode){
-  if(role==='POR' && p.pos==='Arquero') return p.ovr;
+  if(role==='POR' && isGK(p)) return p.ovr;
   const w = W[role], m = MODES[mode].m; let s=0, tw=0;
   for(const k in w){ const ww = w[k]*(m[k]||1); s += ww*p[k]; tw += ww; }
-  return (s/tw) * FIT[p.pos][role];
-}
-/* estadísticas editadas: S.stats = {id:{v,t,...,ovr?}} sólo con lo que difiere del Excel */
-const ATTR_FULL = {v:'Velocidad',t:'Tiro',p:'Pase',r:'Regate',d:'Defensa',f:'Físico'};
-const isGK = p => p.pos==='Arquero';
-const avgOvr = p => Math.round(ATTR.reduce((s,[k])=>s+p[k],0)/ATTR.length*10)/10;
-function applyStats(){
-  S.stats = S.stats || {};
-  P.forEach((p,i)=>{ Object.assign(p, ORIG[i]); const s=S.stats[p.id];
-    if(s){ Object.assign(p, s); if(!isGK(p)) p.ovr = avgOvr(p); } });
+  return (s/tw) * (FIT[p.pos]||FIT['Mediocentro'])[role];
 }
 let RS = {};
 function computeRS(){ RS={}; for(const mode in MODES){ RS[mode]={}; for(const p of P){ RS[mode][p.id]={}; for(const r of ['POR','DEF','MED','DEL']) RS[mode][p.id][r]=roleScore(p,r,mode); } } }
-applyStats(); computeRS();
+/* reconstruye P desde la plantilla base + estadísticas editadas (S.stats) */
+function rebuild(){
+  BASE = plain(S.roster && S.roster.length ? S.roster : DEFAULT_ROSTER);
+  P.length = 0; for(const k in BY) delete BY[k];
+  for(const b of BASE){ const p={...b}; const s=S.stats[p.id]; if(s){ Object.assign(p,s); if(!isGK(p)) p.ovr=avgOvr(p); } P.push(p); BY[p.id]=p; if(E[p.id]==null) E[p.id]=100; }
+  computeRS();
+}
+rebuild();
 const bestRole = (id,mode) => ['DEF','MED','DEL'].reduce((a,r)=>RS[mode][id][r]>RS[mode][id][a]?r:a,'DEF');
 
 /* asignación óptima de 6 jugadores de campo a los cupos de una formación */
@@ -283,117 +370,288 @@ function optimize(avail, formKey, mode){
 }
 const onField = L => L ? [L.gk, ...L.DEF, ...L.MED, ...L.DEL].filter(Boolean) : [];
 const roleOf = (L,id) => L.gk===id?'POR':['DEF','MED','DEL'].find(r=>L[r].includes(id));
-function teamScore(L, mode, E){
+const okLineup = L => !!L && onField(L).length===7 && onField(L).every(id=>BY[id]);
+function teamScore(L, mode, En){
   const ids = onField(L); if(ids.length<7) return null;
-  const eff = id => E ? (0.55 + 0.45*(E[id]??100)/100) : 1;
+  const eff = id => En ? (0.55 + 0.45*(En[id]??100)/100) : 1;
   return ids.reduce((s,id)=>s+RS[mode][id][roleOf(L,id)]*eff(id),0)/7;
 }
 function lineAvg(L, keys){ const ids=onField(L).filter(id=>L.gk!==id); if(!ids.length) return 0; return ids.reduce((s,id)=>s+keys.reduce((a,k)=>a+BY[id][k],0)/keys.length,0)/ids.length; }
 
+/* ---------- disponibilidad: manual, sanciones y asistencia ---------- */
+let unavailable = new Set(S.unavailable);
+let ATT = {};   // asistencia {id:{v:'si'|'no', m:clave del partido}}
+function lastMatch(){ let b=null,bi=-1; S.matches.forEach((m,i)=>{ const f=m.fecha||''; if(!b || f>(b.fecha||'') || (f===(b.fecha||'') && i>bi)){ b=m; bi=i; } }); return b; }
+function suspendedSet(){ const m=lastMatch(); if(!m) return new Set(); return new Set(Object.entries(m.pl||{}).filter(([,x])=>(+x.tr||0)>0 || (+x.ta||0)>=2).map(([id])=>id)); }
+function attNoSet(){ if(!S.next) return new Set(); return new Set(Object.entries(ATT).filter(([,a])=>a.m===S.next.key && a.v==='no').map(([id])=>id)); }
+function avail(){ const su=suspendedSet(), no=attNoSet(); return ACT().map(p=>p.id).filter(id=>!unavailable.has(id) && !su.has(id) && !no.has(id)); }
+
 /* ---------- utilidades UI ---------- */
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const col = v => v>=80?'#d4f53c':v>=65?'#38d39f':v>=50?'#ff9f43':'#ff5d5d';
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const col = v => v>=80?'var(--c80)':v>=65?'var(--c65)':v>=50?'var(--c50)':'var(--c0)';
 const f1 = x => (Math.round(x*10)/10).toFixed(1);
+const initials = n => String(n).trim().slice(0,2).toUpperCase();
 function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast._); toast._=setTimeout(()=>t.style.display='none',2600); }
 function radar(p, size=96){
   const c=size/2, R=c-12, n=6; const pt=(i,v)=>{const a=-Math.PI/2+i*2*Math.PI/n; return [c+Math.cos(a)*R*v/100, c+Math.sin(a)*R*v/100];};
-  let g=''; for(const lv of [33,66,100]) g+=`<polygon points="${ATTR.map((_,i)=>pt(i,lv).join(',')).join(' ')}" fill="none" stroke="#24392d"/>`;
+  let g=''; for(const lv of [33,66,100]) g+=`<polygon points="${ATTR.map((_,i)=>pt(i,lv).join(',')).join(' ')}" style="fill:none;stroke:var(--line)"/>`;
   const poly = ATTR.map(([k],i)=>pt(i,p[k]).join(',')).join(' ');
-  const lbl = ATTR.map(([k,l],i)=>{const [x,y]=pt(i,118);return `<text x="${x}" y="${y+3}" font-size="8" fill="#8fa89a" text-anchor="middle">${l}</text>`}).join('');
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${g}<polygon points="${poly}" fill="rgba(212,245,60,.25)" stroke="#d4f53c" stroke-width="1.5"/>${lbl}</svg>`;
+  const lbl = ATTR.map(([k,l],i)=>{const [x,y]=pt(i,118);return `<text x="${x}" y="${y+3}" font-size="8" style="fill:var(--mut)" text-anchor="middle">${l}</text>`}).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${g}<polygon points="${poly}" style="fill:var(--acc);fill-opacity:.25;stroke:var(--acc);stroke-width:1.5"/>${lbl}</svg>`;
 }
 function modal(html){ const m=$('#modal'); m.innerHTML=`<div class="box">${html}</div>`; m.classList.add('on'); }
 function closeModal(){ $('#modal').classList.remove('on'); }
 $('#modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+function pickPlayer(title, ids, extra, cb){
+  modal(`<h3 style="margin:0 0 8px">${title}</h3>
+    ${ids.map(id=>`<div class="pick" data-id="${id}"><span>${hasNum(BY[id])?`<b class="mut">${esc(BY[id].num)}</b> `:''}${esc(nm(id))}</span></div>`).join('')}
+    ${extra?`<div class="pick" data-id=""><span class="mut">${extra}</span></div>`:''}
+    <button class="btn" style="margin-top:10px;width:100%" onclick="closeModal()">Cancelar</button>`);
+  document.querySelectorAll('#modal .pick').forEach(el=>el.onclick=()=>{ closeModal(); cb(el.dataset.id||null); });
+}
+function fechaTxt(N){
+  if(!N||!N.fecha) return '';
+  const d=new Date(N.fecha+'T'+(N.hora||'12:00'));
+  let s=d.toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'short'});
+  if(N.hora) s+=' · '+d.toLocaleTimeString('es-CO',{hour:'numeric',minute:'2-digit'});
+  return s.charAt(0).toUpperCase()+s.slice(1);
+}
 
 /* ---------- navegación ---------- */
 const VIEWS=['plantilla','ideal','cambios','torneo'];
 let VIEW='plantilla';
+const RENDER = () => ({plantilla:renderPlantilla,ideal:renderIdeal,cambios:renderCambios,torneo:renderTorneo})[VIEW]();
 function show(v){ if(!VIEWS.includes(v) || (v==='cambios' && !canEdit())) v='plantilla'; VIEW=v; closeModal(); scrollTo(0,0);
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   document.querySelectorAll('main section').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
-  ({plantilla:renderPlantilla,ideal:renderIdeal,cambios:renderCambios,torneo:renderTorneo})[v]();
+  RENDER();
 }
 $('#nav').addEventListener('click',e=>{ const b=e.target.closest('button'); if(b){ location.hash=b.dataset.v; } });
 window.addEventListener('hashchange',()=>show(location.hash.slice(1)));
 
+/* ---------- PRÓXIMO PARTIDO Y ASISTENCIA ---------- */
+const myId = () => { try{ const id=localStorage.getItem('comfiar_yo'); return id && BY[id] ? id : null; }catch(e){ return null; } };
+function attGroups(){ const key=S.next&&S.next.key, si=[], no=[], nr=[];
+  for(const p of ACT()){ const a=ATT[p.id]; if(a && a.m===key) (a.v==='si'?si:no).push(p); else nr.push(p); }
+  return {si,no,nr}; }
+function nextCardHTML(){
+  const N=S.next, dt=canEdit();
+  if(!N) return dt ? `<div class="card nextc"><div class="row" style="justify-content:space-between"><div><div class="ctl">Próximo partido</div><div class="mut">Sin programar. Prográmalo para que los jugadores confirmen asistencia.</div></div><button class="btn sm pri" data-next>+ Programar</button></div></div>` : '';
+  const {si,no,nr}=attGroups(); const me=myId(); const a=me&&ATT[me]&&ATT[me].m===N.key?ATT[me].v:null;
+  const names = arr => arr.map(p=>esc(p.n)).join(', ');
+  return `<div class="card nextc">
+    <div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap">
+      <div><div class="ctl">Próximo partido</div><h3>vs ${esc(N.rival)}</h3><div class="mut">${esc(fechaTxt(N))}${N.lugar?' · '+esc(N.lugar):''}</div></div>
+      ${dt?'<button class="btn sm" data-next>✎ Editar</button>':''}</div>
+    ${MODE==='nube'?`<div class="att">
+      ${me?`<div class="row" style="justify-content:space-between"><span>¿Vas, <b>${esc(nm(me))}</b>?</span><button class="btn sm" data-who>No soy yo</button></div>
+        <div class="yn"><button class="btn si ${a==='si'?'sel':''}" data-att="si">✔ Voy</button><button class="btn no ${a==='no'?'sel':''}" data-att="no">✖ No voy</button></div>`
+      :`<label class="ctl">Confirma tu asistencia: ¿quién eres?<select id="whoSel"><option value="">Elige tu nombre…</option>${ACT().map(p=>`<option value="${p.id}">${esc(p.n)}</option>`).join('')}</select></label>`}
+      <div class="grp"><b class="in">✔ Van (${si.length})</b>${si.length?': '+names(si):''}</div>
+      <div class="grp"><b class="out">✖ No van (${no.length})</b>${no.length?': '+names(no):''}</div>
+      <div class="grp"><b>⏳ Sin responder (${nr.length})</b>${nr.length?': '+names(nr):''}</div>
+    </div>`:''}
+  </div>`;
+}
+function bindNext(){
+  document.querySelectorAll('[data-next]').forEach(b=>b.onclick=editNext);
+  document.querySelectorAll('[data-att]').forEach(b=>b.onclick=()=>setAtt(b.dataset.att));
+  const w=$('#whoSel'); if(w) w.onchange=()=>{ if(!w.value) return; try{ localStorage.setItem('comfiar_yo',w.value); }catch(e){} RENDER(); };
+  document.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{ try{ localStorage.removeItem('comfiar_yo'); }catch(e){} RENDER(); });
+}
+async function setAtt(v){
+  const me=myId(); if(!me||!S.next||!FB) return;
+  ATT[me]={v,m:S.next.key}; RENDER();
+  try{ await FB.F.setDoc(FB.F.doc(FB.db,'asistencia',me),{v,m:S.next.key,t:FB.F.serverTimestamp()}); toast(v==='si'?'¡Listo! Confirmaste que vas':'Listo: avisaste que no vas'); }
+  catch(e){ toast('No se pudo registrar. Revisa tu conexión.'); }
+}
+function editNext(){
+  const N=S.next||{};
+  modal(`<h3 style="margin:0 0 10px">${S.next?'Editar':'Programar'} próximo partido</h3>
+    <div class="form">
+      <label class="ctl">Rival<input type="text" id="nr" value="${esc(N.rival||'')}" placeholder="Nombre del rival"></label>
+      <div class="f2"><label class="ctl">Fecha<input type="date" id="nf" value="${esc(N.fecha||new Date().toISOString().slice(0,10))}"></label>
+      <label class="ctl">Hora<input type="time" id="nh" value="${esc(N.hora||'')}"></label></div>
+      <label class="ctl">Cancha / lugar<input type="text" id="nl" value="${esc(N.lugar||'')}" placeholder="Opcional"></label>
+    </div>
+    <div class="row" style="justify-content:space-between;margin-top:6px">
+      ${S.next?'<button class="btn sm bad" id="ndel">Quitar partido</button>':'<span></span>'}
+      <div class="row"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn pri" id="nsave">💾 Guardar</button></div></div>`);
+  $('#nsave').onclick=()=>{ const rival=$('#nr').value.trim(); if(!rival) return toast('Escribe el nombre del rival');
+    S.next={key:N.key||('m'+Date.now()), rival, fecha:$('#nf').value, hora:$('#nh').value, lugar:$('#nl').value.trim()};
+    closeModal(); save('Próximo partido publicado',['next']); RENDER(); };
+  const d=$('#ndel'); if(d) d.onclick=()=>{ S.next=null; closeModal(); save('Partido quitado',['next']); RENDER(); };
+}
+
+/* ---------- PARTIDO EN VIVO ---------- */
+const liveScore = () => { const ev=(S.live&&S.live.ev)||[]; return {gf:ev.filter(e=>e.k==='g').length, gc:ev.filter(e=>e.k==='gc').length}; };
+const liveMin = () => S.live&&S.live.start ? Math.max(1,Math.floor((Date.now()-S.live.start)/60000)+1) : 0;
+const EV_TXT = e => e.k==='g'?`⚽ Gol de ${e.id?esc(nm(e.id)):'(sin identificar)'}${e.as?` <span class="mut">· asist. ${esc(nm(e.as))}</span>`:''}`
+  : e.k==='a'?`🅰 Asistencia de ${esc(nm(e.id))}` : e.k==='y'?`🟨 Amarilla a ${esc(nm(e.id))}` : e.k==='r'?`🟥 Roja a ${esc(nm(e.id))}` : `🥅 Gol de ${esc(S.live.rival)}`;
+function liveBannerHTML(){
+  if(!S.live) return '';
+  const {gf,gc}=liveScore(); const goles=S.live.ev.filter(e=>e.k==='g'&&e.id).map(e=>nm(e.id));
+  return `<div class="livebar"><span class="dotlive"></span><span class="ctl" style="color:var(--bad)">En vivo</span>
+    <b>Comfiar ${gf} – ${gc} ${esc(S.live.rival)}</b>${goles.length?`<span class="mut" style="font-size:12px">⚽ ${esc(goles.join(', '))}</span>`:''}</div>`;
+}
+function liveCardHTML(){
+  const Lv=S.live;
+  if(!Lv) return `<div class="card livec"><div class="row" style="justify-content:space-between"><div><div class="ctl">Partido en vivo</div><div class="mut" style="font-size:12.5px">Anota goles y tarjetas tocando a cada jugador. Al terminar, el partido queda registrado.</div></div><button class="btn pri" id="lstart">▶ Iniciar partido</button></div></div>`;
+  const {gf,gc}=liveScore();
+  return `<div class="card livec on">
+    <div class="row" style="justify-content:space-between"><span class="ctl" style="color:var(--bad);flex-direction:row;align-items:center;gap:6px"><span class="dotlive"></span>En vivo · <span id="lmin">${liveMin()}'</span></span></div>
+    <div class="sbig"><span>Comfiar</span><b>${gf}</b><i>–</i><b>${gc}</b><span>${esc(Lv.rival)}</span></div>
+    <div class="lbtn"><button class="btn pri" id="lgol">⚽ Gol nuestro</button><button class="btn" id="lgc">Gol rival</button><button class="btn" id="lend">🏁 Terminar</button></div>
+    <p class="note" style="margin-top:8px">Toca a un jugador en la cancha para anotar gol, asistencia o tarjeta.</p>
+    ${Lv.ev.length?`<div class="evs">${Lv.ev.map((e,i)=>[e,i]).reverse().map(([e,i])=>`<div class="ev"><span><b class="mut">${e.min||''}'</b> ${EV_TXT(e)}</span><button data-undo="${i}" title="Deshacer">×</button></div>`).join('')}</div>`:''}
+  </div>`;
+}
+function syncPlayed(){ if(!S.live||!LIVE) return; const s=new Set(S.live.played||[]); onField(LIVE).forEach(id=>s.add(id)); S.live.played=[...s]; S.live.lineup=plain(LIVE); }
+function addEv(e, msg){ e.min=liveMin(); S.live.ev.push(e); syncPlayed(); save(msg,['live']); renderCambios(); }
+function playerAction(id){
+  if(!S.live){ toast('Toca “▶ Iniciar partido” para anotar goles y tarjetas'); return; }
+  const others=onField(LIVE).filter(x=>x!==id);
+  modal(`<h3 style="margin:0;font-size:24px;text-transform:uppercase">${hasNum(BY[id])?`<span class="mut">${esc(BY[id].num)}</span> `:''}${esc(nm(id))}</h3>
+    <div class="actg"><button class="btn pri" data-act="g">⚽ Gol</button><button class="btn" data-act="a">🅰 Asistencia</button><button class="btn" data-act="y">🟨 Amarilla</button><button class="btn" data-act="r">🟥 Roja</button></div>
+    <button class="btn" style="width:100%" onclick="closeModal()">Cancelar</button>`);
+  document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ const k=b.dataset.act; closeModal();
+    if(k==='g') pickPlayer(`¿Quién dio la asistencia del gol de ${esc(nm(id))}?`, others, 'Sin asistencia', as=>addEv({k:'g',id,as},`⚽ Gol de ${nm(id)}`));
+    else addEv({k,id}, k==='a'?`Asistencia de ${nm(id)}`:k==='y'?`🟨 Amarilla a ${nm(id)}`:`🟥 Roja a ${nm(id)}`);
+  });
+}
+function startLive(){
+  modal(`<h3 style="margin:0 0 10px">Iniciar partido</h3><div class="form"><label class="ctl">Rival<input type="text" id="lr" value="${esc(S.next?S.next.rival:'')}" placeholder="Nombre del rival"></label></div>
+    <p class="note">Se usará la alineación que está en la cancha. Los cambios que apliques quedan registrados como “jugó”.</p>
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn pri" id="lgo">▶ Empezar</button></div>`);
+  $('#lgo').onclick=()=>{ const rival=$('#lr').value.trim(); if(!rival) return toast('Escribe el nombre del rival');
+    S.live={rival, fecha:(S.next&&S.next.fecha)||new Date().toISOString().slice(0,10), start:Date.now(), ev:[], played:[], lineup:null};
+    syncPlayed(); closeModal(); save('Partido iniciado: los jugadores lo ven en vivo',['live']); renderCambios(); };
+}
+function endLive(){
+  const {gf,gc}=liveScore();
+  modal(`<h3 style="margin:0 0 6px">Terminar partido</h3><div class="sbig"><span>Comfiar</span><b>${gf}</b><i>–</i><b>${gc}</b><span>${esc(S.live.rival)}</span></div>
+    <p class="mut">Se guardará en Torneo con goles, asistencias, tarjetas y quiénes jugaron.</p>
+    <div class="row" style="justify-content:space-between;margin-top:8px"><button class="btn sm bad" id="ldis">Descartar</button>
+    <div class="row"><button class="btn" onclick="closeModal()">Seguir jugando</button><button class="btn pri" id="lsave">💾 Guardar partido</button></div></div>`);
+  $('#lsave').onclick=()=>{
+    syncPlayed(); const pl={}; const g=id=>pl[id]=pl[id]||{j:0,g:0,a:0,ta:0,tr:0};
+    (S.live.played||[]).forEach(id=>g(id).j=1);
+    for(const e of S.live.ev){ if(e.k==='g'){ if(e.id) g(e.id).g++; if(e.as) g(e.as).a++; } else if(e.k==='a') g(e.id).a++; else if(e.k==='y') g(e.id).ta++; else if(e.k==='r') g(e.id).tr++; }
+    S.matches.push({rival:S.live.rival, fecha:S.live.fecha, gf, gc, pl});
+    S.live=null; if(S.next) S.next=null;
+    closeModal(); save('Partido guardado en Torneo',['matches','live','next']); location.hash='torneo';
+  };
+  $('#ldis').onclick=()=>{ S.live=null; closeModal(); save('Partido descartado',['live']); renderCambios(); };
+}
+
 /* ---------- PLANTILLA ---------- */
 let pSort='ovr', pFilter='all';
+const openCards=new Set();
 function renderPlantilla(){
-  const avg = k => P.reduce((s,p)=>s+p[k],0)/P.length;
+  const A=ACT(); const avg = k => A.reduce((s,p)=>s+p[k],0)/Math.max(1,A.length);
   const weakest = ATTR.map(([k,l])=>[l,avg(k)]).sort((a,b)=>a[1]-b[1]);
-  let list = P.filter(p=>pFilter==='all'||(pFilter==='vet'?p.e>=40:p.pos.includes(pFilter)));
-  list.sort((a,b)=>pSort==='ovr'?b.ovr-a.ovr:pSort==='edad'?b.e-a.e:a.n.localeCompare(b.n));
-  $('#v-plantilla').innerHTML = `
+  const su=suspendedSet();
+  let list = A.filter(p=>pFilter==='all'||(pFilter==='vet'?p.e>=40:p.pos.includes(pFilter)));
+  list.sort((a,b)=>pSort==='ovr'?b.ovr-a.ovr:pSort==='edad'?b.e-a.e:pSort==='num'?(+a.num||999)-(+b.num||999):a.n.localeCompare(b.n));
+  const bajas=P.filter(p=>p.out);
+  $('#v-plantilla').innerHTML = `${liveBannerHTML()}${nextCardHTML()}
   <div class="kpis">
-    <div class="card kpi"><div class="v">${P.length}</div><div class="l">Jugadores</div></div>
+    <div class="card kpi"><div class="v">${A.length}</div><div class="l">Jugadores</div></div>
     <div class="card kpi"><div class="v">${f1(avg('ovr'))}</div><div class="l">Puntaje promedio</div></div>
-    <div class="card kpi"><div class="v" style="color:var(--vet)">${P.filter(p=>p.e>=40).length}</div><div class="l">Jugadores 40+ (mín. ${MIN_VET} en cancha)</div></div>
+    <div class="card kpi"><div class="v" style="color:var(--vet)">${A.filter(p=>p.e>=40).length}</div><div class="l">Jugadores 40+ (mín. ${MIN_VET} en cancha)</div></div>
     <div class="card kpi"><div class="v">${weakest[weakest.length-1][0]}</div><div class="l">Fortaleza colectiva (${f1(weakest[weakest.length-1][1])})</div></div>
     <div class="card kpi"><div class="v" style="color:var(--warn)">${weakest[0][0]}</div><div class="l">Punto débil colectivo (${f1(weakest[0][1])})</div></div>
   </div>
-  <div class="row" style="margin-bottom:14px">
+  <div class="row" style="margin-bottom:12px">
     <label class="ctl">Filtrar<select id="pf">
       ${[['all','Todos'],['Arquero','Arqueros'],['Defensa','Defensas'],['Mediocentro','Mediocentros'],['Alero','Aleros'],['Delantero','Delanteros'],['vet','40 años o más']].map(([v,l])=>`<option value="${v}" ${pFilter===v?'selected':''}>${l}</option>`).join('')}
     </select></label>
     <label class="ctl">Ordenar<select id="ps">
-      ${[['ovr','Puntaje'],['edad','Edad'],['n','Nombre']].map(([v,l])=>`<option value="${v}" ${pSort===v?'selected':''}>${l}</option>`).join('')}
+      ${[['ovr','Puntaje'],['num','Número'],['edad','Edad'],['n','Nombre']].map(([v,l])=>`<option value="${v}" ${pSort===v?'selected':''}>${l}</option>`).join('')}
     </select></label>
+    ${canEdit()?'<button class="btn pri" id="padd" style="align-self:flex-end">+ Agregar jugador</button>':''}
   </div>
   <div class="grid pgrid">${list.map(p=>`
-    <div class="card pc">
-      ${canEdit()?`<button class="btn sm edit" data-edit="${p.id}" title="Editar estadísticas">✎ Editar</button>`:''}
+    <div class="card pc ${openCards.has(p.id)?'open':''}" data-card="${p.id}">
+      <span class="chev">▼</span>
+      ${canEdit()?`<button class="btn sm edit" data-edit="${p.id}">✎ Editar jugador</button>`:''}
       <div class="top"><div class="ovr">${Math.round(p.ovr)}</div>
-        <div><h3>${p.n}</h3><div class="meta">${p.e} años · ${p.pie}</div>
-        <span class="tag t-pos">${p.pos}</span> ${p.e>=40?'<span class="tag t-vet">40+</span>':''} ${p.tired?'<span class="tag t-tired">Se cansa</span>':''} ${S.stats[p.id]?'<span class="tag t-edit">Editado</span>':''}</div></div>
+        <div><h3>${esc(p.n)}${hasNum(p)?`<small>#${esc(p.num)}</small>`:''}</h3><div class="meta">${p.e} años · ${esc(p.pie)}</div>
+        <span class="tag t-pos">${esc(p.pos)}</span> ${p.e>=40?'<span class="tag t-vet">40+</span>':''} ${p.tired?'<span class="tag t-tired">Se cansa</span>':''} ${su.has(p.id)?'<span class="tag t-bad">Suspendido</span>':''} ${canEdit()&&S.stats[p.id]?'<span class="tag t-edit">Editado</span>':''}</div></div>
       <div class="body">${radar(p)}<div class="bars">${ATTR.map(([k,l])=>`<div class="bar"><span>${l}</span><i><b style="width:${p[k]}%;background:${col(p[k])}"></b></i><span>${p[k]}</span></div>`).join('')}</div></div>
-      <p class="desc">${p.desc}</p>
+      <p class="desc">${esc(p.desc||'')}</p>
     </div>`).join('')}</div>
-  ${canEdit()?'':'<!--'}<p class="note">Toca “✎ Editar” para ajustar las estadísticas con las barras. Al editar a un jugador de campo, su puntaje se recalcula como el promedio de sus 6 atributos; el del arquero se ajusta aparte (el de Curbelo en el Excel es 70, aunque el promedio de sus atributos es 46,7).</p>${canEdit()?'':'-->'}`;
+  ${canEdit()&&bajas.length?`<div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Dados de baja</h3>${bajas.map(p=>`<div class="mline"><span>${esc(p.n)}</span><button class="btn sm" data-react="${p.id}">Reactivar</button></div>`).join('')}</div>`:''}
+  ${canEdit()?'<p class="note">Toca “✎ Editar jugador” para cambiar sus datos, número y estadísticas. Al editar a un jugador de campo, su puntaje se recalcula como el promedio de sus 6 atributos; el del arquero se ajusta aparte.</p>':''}`;
   $('#pf').onchange=e=>{pFilter=e.target.value;renderPlantilla();};
   $('#ps').onchange=e=>{pSort=e.target.value;renderPlantilla();};
-  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editStats(b.dataset.edit));
+  document.querySelectorAll('[data-card]').forEach(c=>c.onclick=e=>{ if(e.target.closest('button')) return; const id=c.dataset.card; c.classList.toggle('open'); c.classList.contains('open')?openCards.add(id):openCards.delete(id); });
+  document.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editPlayer(b.dataset.edit));
+  document.querySelectorAll('[data-react]').forEach(b=>b.onclick=()=>{ const x=BASE.find(q=>q.id===b.dataset.react); delete x.out; S.roster=BASE; rebuild(); save(`${x.n} reactivado`,['roster']); renderPlantilla(); });
+  const pa=$('#padd'); if(pa) pa.onclick=()=>editPlayer(null);
+  bindNext();
 }
-function editStats(id){
-  const p=BY[id], o=ORIG.find(x=>x.id===id), gk=isGK(p);
-  const keys = ATTR.map(([k])=>k).concat(gk?['ovr']:[]);
-  const tmp = Object.fromEntries(keys.map(k=>[k,Math.round(p[k])]));
-  const ovrOf = () => gk ? tmp.ovr : avgOvr(tmp);
-  const delta = k => { const d=tmp[k]-Math.round(o[k]); return d?`<em class="${d>0?'in':'out'}">${d>0?'+':''}${d}</em>`:'<em></em>'; };
+function editPlayer(id){
+  const isNew=!id; const base = isNew ? {n:'',e:30,pie:'Diestro',pos:'Mediocentro',v:50,t:50,p:50,r:50,d:50,f:50,ovr:50,desc:''} : BASE.find(x=>x.id===id);
+  const p = isNew ? base : BY[id];
+  const tmp = {ovr:Math.round(p.ovr)}; ATTR.forEach(([k])=>tmp[k]=Math.round(p[k]));
+  let pos = p.pos;
+  const ovrOf = () => pos==='Arquero' ? tmp.ovr : avgOvr(tmp);
+  const delta = k => { if(isNew) return '<em></em>'; const d=tmp[k]-Math.round(base[k]); return d?`<em class="${d>0?'in':'out'}">${d>0?'+':''}${d}</em>`:'<em></em>'; };
   const srow = (k,label) => `<label class="srow"><span>${label}</span><input type="range" min="0" max="100" step="1" value="${tmp[k]}" data-k="${k}"><b>${tmp[k]}</b>${delta(k)}</label>`;
   modal(`<div class="row" style="justify-content:space-between;align-items:flex-start;flex-wrap:nowrap">
-      <div><h3 style="margin:0;font-size:24px;text-transform:uppercase">${p.n}</h3><div class="mut" style="font-size:12px">${p.pos} · ${p.e} años · ${p.pie}</div></div>
+      <h3 style="margin:0;font-size:24px;text-transform:uppercase">${isNew?'Nuevo jugador':esc(p.n)}</h3>
       <div style="text-align:right"><div class="ovr" id="eovr">${f1(ovrOf())}</div><div class="ctl">Puntaje</div></div></div>
-    <div id="erad" style="text-align:center;margin:6px 0">${radar(tmp,150)}</div>
+    <div class="secth">Datos</div>
+    <div class="form">
+      <div class="f2"><label class="ctl">Nombre<input type="text" id="pn" value="${esc(p.n)}"></label>
+      <label class="ctl">Número de camiseta<input type="number" id="pnum" min="0" max="99" inputmode="numeric" value="${hasNum(p)?esc(p.num):''}"></label></div>
+      <div class="f2"><label class="ctl">Edad<input type="number" id="pe" min="10" max="80" inputmode="numeric" value="${p.e}"></label>
+      <label class="ctl">Pierna<select id="ppie">${['Diestro','Zurdo','Ambidiestro'].map(x=>`<option ${p.pie===x?'selected':''}>${x}</option>`).join('')}</select></label></div>
+      <label class="ctl">Posición<select id="ppos">${Object.keys(FIT).map(x=>`<option ${p.pos===x?'selected':''}>${x}</option>`).join('')}</select></label>
+      <label class="ctl chk"><input type="checkbox" id="ptired" ${p.tired?'checked':''}> Se cansa rápido</label>
+      <label class="ctl">Descripción<textarea id="pdesc">${esc(p.desc||'')}</textarea></label>
+    </div>
+    <div class="secth">Estadísticas</div>
+    <div id="erad" style="text-align:center;margin:4px 0">${radar(tmp,140)}</div>
     ${ATTR.map(([k])=>srow(k,ATTR_FULL[k])).join('')}
-    ${gk?`<div style="border-top:1px dashed var(--line);margin-top:6px;padding-top:6px">${srow('ovr','Puntaje arquero')}</div>`:''}
-    <p class="note">${gk?'Al arquero natural se le evalúa bajo los tres palos con su puntaje global.':'El puntaje se recalcula como el promedio de los 6 atributos.'} Los números de colores muestran la diferencia con el Excel.</p>
+    <div id="govr" style="border-top:1px dashed var(--line);margin-top:6px;padding-top:6px;${pos==='Arquero'?'':'display:none'}">${srow('ovr','Puntaje arquero')}</div>
+    <p class="note">${isNew?'Al guardar, estos serán sus valores originales.':'Los números de colores muestran la diferencia con sus valores originales.'}</p>
     <div class="row" style="justify-content:space-between;margin-top:12px">
-      <button class="btn sm" id="erst">↺ Valores del Excel</button>
+      <div class="row">${isNew?'':`<button class="btn sm" id="erst">↺ Originales</button><button class="btn sm bad" id="eout">Dar de baja</button>`}</div>
       <div class="row"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn pri" id="esave">💾 Guardar</button></div></div>`);
   const refresh = () => {
-    $('#eovr').textContent = f1(ovrOf());
-    $('#erad').innerHTML = radar(tmp,150);
+    $('#eovr').textContent = f1(ovrOf()); $('#erad').innerHTML = radar(tmp,140);
     document.querySelectorAll('#modal .srow').forEach(r=>{ const k=r.querySelector('input').dataset.k; r.querySelector('b').textContent=tmp[k]; r.querySelector('em').outerHTML=delta(k); });
   };
   document.querySelectorAll('#modal .srow input').forEach(inp=>inp.oninput=()=>{ tmp[inp.dataset.k]=+inp.value; refresh(); });
-  $('#erst').onclick=()=>{ keys.forEach(k=>tmp[k]=Math.round(o[k])); document.querySelectorAll('#modal .srow input').forEach(inp=>inp.value=tmp[inp.dataset.k]); refresh(); };
+  $('#ppos').onchange=e=>{ pos=e.target.value; $('#govr').style.display=pos==='Arquero'?'':'none'; refresh(); };
+  const r=$('#erst'); if(r) r.onclick=()=>{ ATTR.forEach(([k])=>tmp[k]=Math.round(base[k])); tmp.ovr=Math.round(base.ovr); document.querySelectorAll('#modal .srow input').forEach(inp=>inp.value=tmp[inp.dataset.k]); refresh(); };
+  const o=$('#eout'); if(o) o.onclick=()=>{ base.out=1; unavailable.delete(id); S.roster=BASE; rebuild(); closeModal(); save(`${base.n} dado de baja`,['roster']); renderPlantilla(); };
   $('#esave').onclick=()=>{
-    const diff={}; keys.forEach(k=>{ if(tmp[k]!==Math.round(o[k])) diff[k]=tmp[k]; });
+    const n=$('#pn').value.trim(); if(!n) return toast('Escribe el nombre');
+    const num=$('#pnum').value.trim();
+    const data={n, e:Math.max(10,Math.min(80,+$('#pe').value||30)), pie:$('#ppie').value, pos, desc:$('#pdesc').value.trim()};
+    if(num!=='') data.num=+num; if($('#ptired').checked) data.tired=1;
+    if(isNew){
+      const nid=n.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,14)+'-'+Math.random().toString(36).slice(2,6);
+      const nb={id:nid,...data}; ATTR.forEach(([k])=>nb[k]=tmp[k]); nb.ovr = pos==='Arquero'?tmp.ovr:avgOvr(tmp);
+      BASE.push(nb); S.roster=BASE; rebuild(); closeModal(); save(`${n} agregado a la plantilla`,['roster']); renderPlantilla(); return;
+    }
+    delete base.num; delete base.tired; Object.assign(base,data);
+    const keys=ATTR.map(([k])=>k).concat(pos==='Arquero'?['ovr']:[]);
+    const diff={}; keys.forEach(k=>{ if(tmp[k]!==Math.round(base[k])) diff[k]=tmp[k]; });
     if(Object.keys(diff).length) S.stats[id]=diff; else delete S.stats[id];
-    applyStats(); computeRS(); closeModal(); renderPlantilla();
-    save(`Estadísticas de ${p.n} guardadas`);
-    setTimeout(()=>toast('Pulsa “Generar equipo ideal” para recalcular la alineación'),2700);
+    S.roster=BASE; rebuild(); closeModal(); renderPlantilla();
+    save(`${n} actualizado`,['roster','stats']);
   };
 }
 
-/* ---------- EQUIPO IDEAL ---------- */
-let unavailable = new Set(S.unavailable);
+/* ---------- EQUIPO IDEAL (DT) / ALINEACIÓN (jugadores) ---------- */
 let iForm='auto', iMode='equilibrado';
-let IDEAL = S.lineup ? JSON.parse(JSON.stringify(S.lineup)) : null;
-const avail = () => P.map(p=>p.id).filter(id=>!unavailable.has(id));
+let IDEAL = okLineup(S.lineup) ? plain(S.lineup) : null;
 function regen(){ const a=avail(); IDEAL = a.length>=7 ? optimize(a,iForm,iMode) : null; }
 const Y = {POR:89,DEF:68,MED:44,DEL:19};
 const XS = {1:[50],2:[30,70],3:[18,50,82]};
@@ -404,11 +662,12 @@ function pitchHTML(L, opts={}){
     <div class="mk" style="left:25%;right:25%;top:-2px;height:14%;border-top:0"></div>`;
   if(!L) return `<div class="pitch">${marks}</div>`;
   const F = FORMS[L.formation]; let slots='';
+  const goals = {}; if(opts.live && S.live) S.live.ev.forEach(e=>{ if(e.k==='g'&&e.id) goals[e.id]=(goals[e.id]||0)+1; });
   const one = (id, role, x, y, key) => {
-    const p = id?BY[id]:null; const e = opts.E && id ? (opts.E[id]??100) : null;
-    return `<div class="slot ${!p?'empty':''} ${p&&VET(id)?'vet':''}" style="left:${x}%;top:${y}%" data-key="${key}">
-      <div class="dot">${p?Math.round(RS[opts.mode||'equilibrado'][id][role]):'+'}${p&&VET(id)?'<span class="vb">40+</span>':''}</div>
-      <div class="nm">${p?p.n:'Vacío'}</div><div class="rl">${ROLE_NAME[role]}</div>
+    const p = id?BY[id]:null; const e = opts.E && id ? (opts.E[id]??100) : null; const sc = p?Math.round(RS[opts.mode||'equilibrado'][id][role]):0;
+    return `<div class="slot ${!p?'empty':''} ${p&&VET(id)?'vet':''}" style="left:${x}%;top:${y}%" data-key="${key}" data-id="${id||''}">
+      <div class="dot">${p?(hasNum(p)?esc(p.num):sc):'+'}${p&&VET(id)?'<span class="vb">40+</span>':''}${goals[id]?`<span class="gb">⚽${goals[id]>1?goals[id]:''}</span>`:''}</div>
+      <div class="nm">${p?esc(p.n):'Vacío'}</div><div class="rl">${ROLE_NAME[role]}${p&&hasNum(p)?' · '+sc:''}</div>
       ${e!=null?`<div class="en"><b style="width:${e}%;background:${col(e)}"></b></div>`:''}</div>`;
   };
   slots += one(L.gk,'POR',50,Y.POR,'gk');
@@ -420,24 +679,27 @@ function ruleHTML(L){ const n = onField(L).filter(VET).length;
                     : `<div class="rule ko">✖ Regla 40+ incumplida: hay ${n} y se necesitan mínimo ${MIN_VET}</div>`; }
 function renderIdeal(){
   if(!canEdit()) return renderAlineacion();
-  if(!IDEAL) regen();
+  if(!IDEAL || !okLineup(IDEAL)) regen();
   const L = IDEAL, ts = L?teamScore(L,iMode):null;
-  const bench = avail().filter(id=>!onField(L).includes(id));
-  $('#v-ideal').innerHTML = `
+  const bench = L?avail().filter(id=>!onField(L).includes(id)):[];
+  const su=suspendedSet(), no=attNoSet();
+  $('#v-ideal').innerHTML = `${nextCardHTML()}
   <div class="row" style="margin-bottom:14px">
     <label class="ctl">Formación<select id="if"><option value="auto" ${iForm==='auto'?'selected':''}>La mejor (automática)</option>${Object.keys(FORMS).map(f=>`<option ${iForm===f?'selected':''}>${f}</option>`).join('')}</select></label>
     <label class="ctl">Estilo<select id="im">${Object.entries(MODES).map(([k,v])=>`<option value="${k}" ${iMode===k?'selected':''}>${v.label}</option>`).join('')}</select></label>
     <button class="btn pri" id="igen" style="align-self:flex-end">⚡ Generar equipo ideal</button>
   </div>
   <div class="card" style="margin-bottom:14px"><div class="ctl" style="margin-bottom:6px">Disponibles para el partido (toca para quitar lesionados o ausentes)</div>
-    <div class="chips">${P.map(p=>`<span class="chip ${unavailable.has(p.id)?'off':''} ${p.e>=40?'vet':''}" data-id="${p.id}">${p.n}${p.e>=40?' · 40+':''}</span>`).join('')}</div></div>
+    <div class="chips">${ACT().map(p=>{ const lock=su.has(p.id)?'🟥 suspendido':no.has(p.id)?'✖ no va':'';
+      return `<span class="chip ${lock?'off lock':unavailable.has(p.id)?'off':''} ${p.e>=40?'vet':''}" data-id="${p.id}" ${lock?'data-lock="1"':''}>${esc(p.n)}${p.e>=40?' · 40+':''}${lock?' · '+lock:''}</span>`; }).join('')}</div>
+    ${su.size?`<p class="note">🟥 Suspendidos por roja en el último partido: ${[...su].map(nm).join(', ')}. Vuelven a estar disponibles cuando registres el siguiente partido.</p>`:''}</div>
   ${!L?`<div class="rule ko">Se necesitan al menos 7 jugadores disponibles, con mínimo ${MIN_VET} de 40 años o más.</div>`:`
   <div class="two">
-    <div>${pitchHTML(L,{mode:iMode})}<p class="note">Toca un jugador para cambiarlo a mano. El número es su rendimiento en esa posición.</p></div>
+    <div>${pitchHTML(L,{mode:iMode})}<p class="note">Toca un jugador para cambiarlo a mano.</p></div>
     <div>
       <div class="card">
         <div class="row" style="justify-content:space-between"><div><div class="ctl">Fuerza del equipo · ${L.formation}</div><div class="ovr">${f1(ts)}</div></div>
-        <div class="row"><button class="btn" id="iuse">Llevar a Cambios →</button><button class="btn pri" id="isave">💾 Guardar alineación</button></div></div>
+        <div class="row"><button class="btn" id="ishare">📤 Compartir</button><button class="btn" id="iuse">Llevar a Cambios →</button><button class="btn pri" id="isave">💾 Guardar alineación</button></div></div>
         ${ruleHTML(L)}
         <div class="lines">
           <div><span>Ataque</span><b>${f1(lineAvg(L,['t','r']))}</b></div>
@@ -447,35 +709,54 @@ function renderIdeal(){
         ${alertsFor(L).map(a=>`<div class="why">⚠ ${a}</div>`).join('')}
       </div>
       <div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Banco</h3>
-        <table><tr><th>Jugador</th><th>Mejor puesto</th><th class="n">Rend.</th></tr>
-        ${bench.map(id=>{const r=bestRole(id,iMode);return `<tr><td>${BY[id].n} ${VET(id)?'<span class="tag t-vet">40+</span>':''}</td><td>${ROLE_NAME[r]}${BY[id].pos.includes('Arquero')?' / Arquero':''}</td><td class="n">${f1(Math.max(RS[iMode][id][r],BY[id].pos.includes('Arquero')?RS[iMode][id].POR:0))}</td></tr>`}).join('')||'<tr><td colspan="3" class="mut">Sin suplentes</td></tr>'}
-        </table></div>
+        <div class="tw"><table><tr><th>Jugador</th><th>Mejor puesto</th><th class="n">Rend.</th></tr>
+        ${bench.map(id=>{const r=bestRole(id,iMode);return `<tr><td>${esc(nm(id))} ${VET(id)?'<span class="tag t-vet">40+</span>':''}</td><td>${ROLE_NAME[r]}${BY[id].pos.includes('Arquero')?' / Arquero':''}</td><td class="n">${f1(Math.max(RS[iMode][id][r],BY[id].pos.includes('Arquero')?RS[iMode][id].POR:0))}</td></tr>`}).join('')||'<tr><td colspan="3" class="mut">Sin suplentes</td></tr>'}
+        </table></div></div>
     </div>
   </div>`}`;
+  bindNext();
   $('#if').onchange=e=>{iForm=e.target.value;regen();renderIdeal();};
   $('#im').onchange=e=>{iMode=e.target.value;regen();renderIdeal();};
   $('#igen').onclick=()=>{regen();renderIdeal();toast('Equipo ideal generado');};
-  document.querySelectorAll('#v-ideal .chip').forEach(c=>c.onclick=()=>{const id=c.dataset.id; unavailable.has(id)?unavailable.delete(id):unavailable.add(id); regen(); renderIdeal();});
+  document.querySelectorAll('#v-ideal .chip').forEach(c=>c.onclick=()=>{ if(c.dataset.lock) return toast('Este jugador no está disponible (sanción o no confirmó)'); const id=c.dataset.id; unavailable.has(id)?unavailable.delete(id):unavailable.add(id); regen(); renderIdeal();});
   if(L){
     document.querySelectorAll('#v-ideal .slot').forEach(s=>s.onclick=()=>pickFor(s.dataset.key));
-    $('#iuse').onclick=()=>{LIVE=JSON.parse(JSON.stringify(IDEAL)); location.hash='cambios'; toast('Alineación cargada en Cambios');};
-    $('#isave').onclick=()=>{S.lineup=IDEAL; S.unavailable=[...unavailable]; save('Alineación guardada');};
+    $('#iuse').onclick=()=>{LIVE=plain(IDEAL); if(S.live){ syncPlayed(); save(null,['live']); } location.hash='cambios'; toast('Alineación cargada en Cambios');};
+    $('#isave').onclick=()=>{S.lineup=plain(IDEAL); save('Alineación guardada',['lineup','unavailable']);};
+    $('#ishare').onclick=()=>shareLineup(IDEAL, bench);
   }
+}
+function renderAlineacion(){
+  const enVivo = S.live && okLineup(S.live.lineup);
+  const L = enVivo ? S.live.lineup : okLineup(S.lineup) ? S.lineup : null;
+  const head = `${liveBannerHTML()}${nextCardHTML()}`;
+  if(!L){ $('#v-ideal').innerHTML=`${head}<div class="card"><h3 style="margin:0 0 6px">Alineación</h3><p class="mut">${MODE==='cargando'?'Cargando…':'El DT todavía no ha publicado la alineación.'}</p></div>`; bindNext(); return; }
+  const su=suspendedSet(), no=attNoSet();
+  const bench=ACT().map(p=>p.id).filter(id=>!onField(L).includes(id) && !unavailable.has(id) && !su.has(id) && !no.has(id));
+  const out=ACT().filter(p=>unavailable.has(p.id)||su.has(p.id)||no.has(p.id));
+  $('#v-ideal').innerHTML=`${head}<div class="two"><div>${pitchHTML(L,{mode:'equilibrado',live:enVivo})}</div>
+    <div><div class="card"><div class="row" style="justify-content:space-between"><div><div class="ctl">${enVivo?'En cancha ahora':'Alineación del DT'} · ${L.formation}</div><div class="ovr">${f1(teamScore(L,'equilibrado'))}</div><div class="ctl">Fuerza del equipo</div></div>
+      <button class="btn" id="ashare">📤 Compartir</button></div>${ruleHTML(L)}
+      <div class="lines"><div><span>Ataque</span><b>${f1(lineAvg(L,['t','r']))}</b></div><div><span>Defensa</span><b>${f1(lineAvg(L,['d']))}</b></div><div><span>Físico / velocidad</span><b>${f1(lineAvg(L,['f','v']))}</b></div></div></div>
+      <div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Suplentes</h3><div class="chips">${bench.map(id=>`<span class="chip ${VET(id)?'vet':''}">${esc(nm(id))}</span>`).join('')||'<span class="mut">Sin suplentes</span>'}</div>
+      ${out.length?`<h3 style="margin:12px 0 6px">No disponibles</h3><div class="chips">${out.map(p=>`<span class="chip off">${esc(p.n)}${su.has(p.id)?' · 🟥':''}</span>`).join('')}</div>`:''}</div>
+      <p class="note">${syncNote()}</p></div></div>`;
+  bindNext();
+  $('#ashare').onclick=()=>shareLineup(L, bench);
 }
 function alertsFor(L){
   const a=[]; const ids=onField(L);
-  const jd = ['jairo','veyker'].filter(id=>ids.includes(id));
-  if(jd.length===2) a.push('Jairo y Veyker juntos: mucho ataque y poco repliegue. Que un volante cubra la espalda.');
+  if(['jairo','veyker'].every(id=>ids.includes(id))) a.push('Jairo y Veyker juntos: mucho ataque y poco repliegue. Que un volante cubra la espalda.');
   if(ids.includes('henry')) a.push('Henry: tiende al pánico escénico en partidos importantes. Tenlo en cuenta en eliminatorias.');
-  const tired = ids.filter(id=>BY[id].tired); if(tired.length>=3) a.push(`Hay ${tired.length} jugadores que se cansan rápido (${tired.map(i=>BY[i].n).join(', ')}). Planea sus cambios.`);
-  if(L.gk!=='curbelo' && L.gk) a.push(`${BY[L.gk].n} juega de arquero en lugar de Curbelo.`);
+  const tired = ids.filter(id=>BY[id].tired); if(tired.length>=3) a.push(`Hay ${tired.length} jugadores que se cansan rápido (${tired.map(nm).join(', ')}). Planea sus cambios.`);
+  if(L.gk && BY.curbelo && !BY.curbelo.out && L.gk!=='curbelo') a.push(`${esc(nm(L.gk))} juega de arquero en lugar de Curbelo.`);
   return a;
 }
 function pickFor(key){
   const L=IDEAL; const [r,i]=key==='gk'?['POR',0]:key.split(':'); const role=r; const cur = key==='gk'?L.gk:L[r][+i];
   const opts = avail().map(id=>({id, s:RS[iMode][id][role]})).sort((a,b)=>b.s-a.s);
   modal(`<h3 style="margin:0 0 8px">Elegir ${ROLE_NAME[role].toLowerCase()}</h3>
-    ${opts.map(o=>`<div class="pick ${o.id===cur?'cur':''}" data-id="${o.id}"><span>${BY[o.id].n} ${VET(o.id)?'<span class="tag t-vet">40+</span>':''} <span class="mut" style="font-size:12px">${onField(L).includes(o.id)&&o.id!==cur?'(en cancha, se intercambian)':''}</span></span><b>${f1(o.s)}</b></div>`).join('')}
+    ${opts.map(o=>`<div class="pick ${o.id===cur?'cur':''}" data-id="${o.id}"><span>${esc(nm(o.id))} ${VET(o.id)?'<span class="tag t-vet">40+</span>':''} <span class="mut" style="font-size:12px">${onField(L).includes(o.id)&&o.id!==cur?'(en cancha, se intercambian)':''}</span></span><b>${f1(o.s)}</b></div>`).join('')}
     <button class="btn" style="margin-top:10px;width:100%" onclick="closeModal()">Cancelar</button>`);
   document.querySelectorAll('#modal .pick').forEach(el=>el.onclick=()=>{
     const id=el.dataset.id; const setAt=(k,v)=>{ if(k==='gk') L.gk=v; else {const [rr,ii]=k.split(':'); L[rr][+ii]=v;} };
@@ -483,20 +764,56 @@ function pickFor(key){
     if(other) setAt(other,cur); setAt(key,id); closeModal(); renderIdeal();
   });
 }
+/* imagen de la alineación para compartir por WhatsApp */
+async function shareLineup(L, bench){
+  try{ await document.fonts.load('800 40px "Barlow Condensed"'); }catch(e){}
+  const Wd=1080, Ht=1350, cv=document.createElement('canvas'); cv.width=Wd; cv.height=Ht; const g=cv.getContext('2d');
+  const BC='"Barlow Condensed", Inter, sans-serif';
+  const rr=(x,y,w,h,r)=>{ g.beginPath(); if(g.roundRect) g.roundRect(x,y,w,h,r); else g.rect(x,y,w,h); };
+  g.fillStyle='#0b1410'; g.fillRect(0,0,Wd,Ht);
+  g.textBaseline='alphabetic'; g.textAlign='left'; g.fillStyle='#e8f1ec'; g.font=`800 66px ${BC}`; g.fillText('COMFIAR',60,100);
+  const w0=g.measureText('COMFIAR ').width; g.fillStyle='#d4f53c'; g.fillText('F7',60+w0,100);
+  g.fillStyle='#8fa89a'; g.font=`700 32px ${BC}`;
+  g.fillText((S.next?`vs ${S.next.rival}${S.next.fecha?' · '+fechaTxt(S.next):''}`:'Alineación').toUpperCase(),60,146);
+  g.textAlign='right'; g.fillStyle='#d4f53c'; g.font=`800 50px ${BC}`; g.fillText(L.formation,Wd-60,100);
+  const px=150, py=180, pw=780, ph=990;
+  g.save(); rr(px,py,pw,ph,28); g.clip();
+  for(let i=0;i<10;i++){ g.fillStyle=i%2?'#1a6235':'#1d6b3a'; g.fillRect(px,py+i*ph/10,pw,ph/10+1); }
+  g.strokeStyle='rgba(255,255,255,.35)'; g.lineWidth=4;
+  g.beginPath(); g.moveTo(px,py+ph/2); g.lineTo(px+pw,py+ph/2); g.stroke();
+  g.beginPath(); g.arc(px+pw/2,py+ph/2,pw*.11,0,Math.PI*2); g.stroke();
+  g.strokeRect(px+pw*.25,py+ph*.86,pw*.5,ph*.15); g.strokeRect(px+pw*.25,py-6,pw*.5,ph*.14+6);
+  g.restore(); g.strokeStyle='#2c8a4d'; g.lineWidth=4; rr(px,py,pw,ph,28); g.stroke();
+  const F=FORMS[L.formation]; const spots=[[L.gk,50,Y.POR]];
+  for(const r of ['DEF','MED','DEL']) for(let i=0;i<F[r];i++) spots.push([L[r][i],XS[F[r]][i],Y[r]]);
+  for(const [id,x,y] of spots){ const p=BY[id]; if(!p) continue; const cx=px+pw*x/100, cy=py+ph*y/100; const c=VET(id)?'#7cc4ff':'#d4f53c';
+    g.beginPath(); g.arc(cx,cy,52,0,Math.PI*2); g.fillStyle='#0d1a13'; g.fill(); g.lineWidth=6; g.strokeStyle=c; g.stroke();
+    g.fillStyle=c; g.textAlign='center'; g.textBaseline='middle'; g.font=`800 50px ${BC}`; g.fillText(hasNum(p)?String(p.num):initials(p.n),cx,cy+3);
+    g.font=`700 36px ${BC}`; const t=p.n.toUpperCase(); const tw=g.measureText(t).width+26;
+    g.fillStyle='rgba(0,0,0,.62)'; rr(cx-tw/2,cy+62,tw,46,9); g.fill(); g.fillStyle='#ffffff'; g.fillText(t,cx,cy+86); }
+  g.textBaseline='alphabetic'; g.textAlign='left'; g.fillStyle='#8fa89a'; g.font=`600 30px Inter, sans-serif`;
+  const words=('Suplentes: '+(bench.length?bench.map(nm).join(', '):'—')).split(' '); let line='', yy=1225;
+  for(const wd of words){ const tst=line?line+' '+wd:wd; if(g.measureText(tst).width>Wd-120){ g.fillText(line,60,yy); yy+=40; line=wd; } else line=tst; }
+  g.fillText(line,60,yy);
+  const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
+  const file=new File([blob],'alineacion-comfiar-f7.png',{type:'image/png'});
+  try{ if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:'Alineación Comfiar F7'}); return; } }catch(e){ if(e.name==='AbortError') return; }
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=file.name; document.body.appendChild(a); a.click(); a.remove();
+  toast('Imagen descargada');
+}
 
 /* ---------- CAMBIOS ---------- */
-let LIVE = S.lineup ? JSON.parse(JSON.stringify(S.lineup)) : null;
+let LIVE = S.live && okLineup(S.live.lineup) ? plain(S.live.lineup) : okLineup(S.lineup) ? plain(S.lineup) : null;
 let cMode='equilibrado';
-const E = Object.fromEntries(P.map(p=>[p.id,100]));
 function liveSwap(L, outId, inId){
-  const N = JSON.parse(JSON.stringify(L));
+  const N = plain(L);
   if(N.gk===outId){ N.gk=inId; return N; }
   for(const r of ['DEF','MED','DEL']){ const ix=N[r].indexOf(outId); if(ix>=0) N[r][ix]=inId; }
   return N;
 }
 function reshuffle(N, mode){ // reacomoda a los 6 de campo en la mejor posición
   const six=[...N.DEF,...N.MED,...N.DEL];
-  const a=assign(six, FORMS[N.formation], (id,r)=>RS[mode][id][r]*(0.55+0.45*E[id]/100));
+  const a=assign(six, FORMS[N.formation], (id,r)=>RS[mode][id][r]*(0.55+0.45*(E[id]??100)/100));
   return {...N, DEF:a.DEF, MED:a.MED, DEL:a.DEL};
 }
 function suggest(L, mode){
@@ -523,25 +840,26 @@ function suggest(L, mode){
 }
 function whyText(s, L){
   const parts = s.outs.map((o,k)=>{ const i=s.ins[k]; const ri = roleOf(s.N,i);
-    let w=[]; if(E[o]<70) w.push(`${BY[o].n} está al ${E[o]}% de energía`);
+    let w=[]; if(E[o]<70) w.push(`${esc(nm(o))} está al ${E[o]}% de energía`);
     if(VET(o) && onField(L).filter(VET).length===MIN_VET) w.push('sale un 40+, así que entra otro 40+');
-    if(cMode==='ofensivo' && ri!=='DEF' && BY[i].t>=70) w.push(`${BY[i].n} suma gol`);
-    if(cMode==='defensivo' && BY[i].d>=70) w.push(`${BY[i].n} suma marca`);
+    if(cMode==='ofensivo' && ri!=='DEF' && BY[i].t>=70) w.push(`${esc(nm(i))} suma gol`);
+    if(cMode==='defensivo' && BY[i].d>=70) w.push(`${esc(nm(i))} suma marca`);
     return w.join(' · '); }).filter(Boolean);
   const moved = onField(s.N).filter(id=>!s.ins.includes(id) && roleOf(L,id)!==roleOf(s.N,id));
-  if(moved.length) parts.push('Reacomodo: '+moved.map(id=>`${BY[id].n} → ${ROLE_NAME[roleOf(s.N,id)]}`).join(', '));
+  if(moved.length) parts.push('Reacomodo: '+moved.map(id=>`${esc(nm(id))} → ${ROLE_NAME[roleOf(s.N,id)]}`).join(', '));
   return parts.join(' · ');
 }
+const sugHTML = (s,L) => `<div class="sug"><div class="d">+${f1(s.d)}</div><div class="t">
+    ${s.outs.map((o,k)=>`<div><b class="out">▼ ${esc(nm(o))}</b> <span class="mut">↔</span> <b class="in">▲ ${esc(nm(s.ins[k]))}</b> <span class="mut">(${ROLE_NAME[roleOf(s.N,s.ins[k])]})</span></div>`).join('')}
+    <div class="why">${whyText(s,L)||'Mejora el rendimiento del equipo'}</div></div>
+    <button class="btn sm pri" data-apply="${s.outs.join(',')}|${s.ins.join(',')}">Aplicar</button></div>`;
 function renderCambios(){
-  if(!LIVE){ if(!IDEAL) regen(); LIVE = IDEAL?JSON.parse(JSON.stringify(IDEAL)):null; }
+  if(!LIVE || !okLineup(LIVE)){ if(!IDEAL || !okLineup(IDEAL)) regen(); LIVE = IDEAL?plain(IDEAL):null; }
   if(!LIVE){ $('#v-cambios').innerHTML='<div class="rule ko">Primero arma un equipo en “Equipo ideal”.</div>'; return; }
-  // si alguien quedó no disponible, avisar
   const L=LIVE; const sg = suggest(L,cMode); const field=onField(L); const bench=avail().filter(id=>!field.includes(id));
-  const sugHTML = (s,dbl) => `<div class="sug"><div class="d">+${f1(s.d)}</div><div class="t">
-      ${s.outs.map((o,k)=>`<div><b class="out">▼ ${BY[o].n}</b> <span class="mut">↔</span> <b class="in">▲ ${BY[s.ins[k]].n}</b> <span class="mut">(${ROLE_NAME[roleOf(s.N,s.ins[k])]})</span></div>`).join('')}
-      <div class="why">${whyText(s,L)||'Mejora el rendimiento del equipo'}</div></div>
-      <button class="btn sm pri" data-apply="${s.outs.join(',')}|${s.ins.join(',')}">Aplicar</button></div>`;
-  $('#v-cambios').innerHTML = `
+  const best = sg.singles[0];
+  $('#v-cambios').innerHTML = `${liveCardHTML()}
+  <div class="card bestnow"><div class="ctl">Mejor cambio ahora</div>${best?sugHTML(best,L):'<p class="mut" style="margin:6px 0 0">Ningún cambio mejora al equipo en este momento.</p>'}</div>
   <div class="row" style="margin-bottom:14px">
     <label class="ctl">Situación del partido<select id="cm">${Object.entries(MODES).map(([k,v])=>`<option value="${k}" ${cMode===k?'selected':''}>${k==='equilibrado'?'Empatados / control':v.label}</option>`).join('')}</select></label>
     <button class="btn" id="c10" style="align-self:flex-end">⏱ Pasaron 10 minutos</button>
@@ -549,13 +867,13 @@ function renderCambios(){
     <button class="btn" id="cload" style="align-self:flex-end">Traer equipo ideal</button>
   </div>
   <div class="two">
-    <div>${pitchHTML(L,{mode:cMode,E})}
+    <div>${pitchHTML(L,{mode:cMode,E,live:true})}
       <div class="card" style="margin-top:12px">${ruleHTML(L)}<div class="row" style="justify-content:space-between"><span class="ctl">Fuerza actual (con cansancio)</span><span class="ovr" style="font-size:34px">${f1(sg.base)}</span></div></div>
     </div>
     <div>
-      <div class="card"><h3 style="margin:0 0 10px">Mejores cambios ahora</h3>
-        ${sg.singles.length?sg.singles.map(s=>sugHTML(s)).join(''):'<p class="mut">Ningún cambio individual mejora al equipo en este momento. Baja la energía de los que veas cansados o cambia la situación del partido.</p>'}
-        ${sg.doubles.length?`<h3 style="margin:16px 0 10px">Cambios dobles</h3>${sg.doubles.map(s=>sugHTML(s,1)).join('')}`:''}
+      <div class="card sugall"><h3 style="margin:0 0 10px">Mejores cambios ahora</h3>
+        ${sg.singles.length?sg.singles.map(s=>sugHTML(s,L)).join(''):'<p class="mut">Ningún cambio individual mejora al equipo en este momento. Baja la energía de los que veas cansados o cambia la situación del partido.</p>'}
+        ${sg.doubles.length?`<h3 style="margin:16px 0 10px">Cambios dobles</h3>${sg.doubles.map(s=>sugHTML(s,L)).join('')}`:''}
         <p class="note">Todas las sugerencias respetan la regla de mínimo ${MIN_VET} jugadores de 40+ en cancha y reacomodan las posiciones si conviene.</p>
       </div>
       <div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Energía en cancha</h3>
@@ -566,76 +884,99 @@ function renderCambios(){
     </div>
   </div>`;
   $('#cm').onchange=e=>{cMode=e.target.value;renderCambios();};
-  $('#c10').onclick=()=>{ const f=onField(LIVE); for(const p of P){ if(f.includes(p.id)){ let loss = 6 + (100-p.f)*0.12 + (p.tired?5:0) + (p.e>=40?2:0); if(LIVE.gk===p.id) loss*=0.35; E[p.id]=Math.max(0,Math.round(E[p.id]-loss)); } else E[p.id]=Math.min(100,E[p.id]+15); } renderCambios(); };
+  $('#c10').onclick=()=>{ const f=onField(LIVE); for(const p of ACT()){ if(f.includes(p.id)){ let loss = 6 + (100-p.f)*0.12 + (p.tired?5:0) + (p.e>=40?2:0); if(LIVE.gk===p.id) loss*=0.35; E[p.id]=Math.max(0,Math.round(E[p.id]-loss)); } else E[p.id]=Math.min(100,E[p.id]+15); } renderCambios(); };
   $('#crst').onclick=()=>{ for(const k in E) E[k]=100; renderCambios(); };
-  $('#cload').onclick=()=>{ if(!IDEAL) regen(); LIVE=JSON.parse(JSON.stringify(IDEAL)); renderCambios(); };
+  $('#cload').onclick=()=>{ if(!IDEAL) regen(); LIVE=plain(IDEAL); if(S.live){ syncPlayed(); save(null,['live']); } renderCambios(); };
   document.querySelectorAll('#v-cambios input[type=range]').forEach(r=>{ r.oninput=()=>{ r.nextElementSibling.textContent=r.value+'%'; }; r.onchange=()=>{ E[r.dataset.id]=+r.value; renderCambios(); }; });
   document.querySelectorAll('[data-apply]').forEach(b=>b.onclick=()=>{
     const [o,i]=b.dataset.apply.split('|').map(x=>x.split(','));
-    let N=LIVE; o.forEach((oo,k)=>N=liveSwap(N,oo,i[k])); LIVE=reshuffle(N,cMode); renderCambios(); toast('Cambio aplicado');
+    let N=LIVE; o.forEach((oo,k)=>N=liveSwap(N,oo,i[k])); LIVE=reshuffle(N,cMode);
+    if(S.live){ syncPlayed(); save(null,['live']); }
+    renderCambios(); toast('Cambio aplicado');
   });
+  document.querySelectorAll('#v-cambios .slot').forEach(s=>s.onclick=()=>{ if(s.dataset.id) playerAction(s.dataset.id); });
+  const ls=$('#lstart'); if(ls) ls.onclick=startLive;
+  if(S.live){
+    $('#lgol').onclick=()=>pickPlayer('¿Quién hizo el gol?', onField(LIVE), 'No sé / gol en contra del rival', id=>{
+      if(!id) return addEv({k:'g',id:null},'⚽ Gol de Comfiar');
+      pickPlayer(`¿Quién dio la asistencia del gol de ${esc(nm(id))}?`, onField(LIVE).filter(x=>x!==id), 'Sin asistencia', as=>addEv({k:'g',id,as},`⚽ Gol de ${nm(id)}`)); });
+    $('#lgc').onclick=()=>addEv({k:'gc'},`Gol de ${S.live.rival}`);
+    $('#lend').onclick=endLive;
+    document.querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{ S.live.ev.splice(+b.dataset.undo,1); save('Evento eliminado',['live']); renderCambios(); });
+  }
 }
-function erow(id){ return `<div class="erow"><span>${BY[id].n}${BY[id].tired?' <span class="tag t-tired">!</span>':''}</span><input type="range" min="0" max="100" step="5" value="${E[id]}" data-id="${id}"><span class="n">${E[id]}%</span></div>`; }
+setInterval(()=>{ const m=$('#lmin'); if(m && S.live) m.textContent=liveMin()+"'"; }, 20000);
+function erow(id){ return `<div class="erow"><span>${esc(nm(id))}${BY[id].tired?' <span class="tag t-tired">!</span>':''}</span><input type="range" min="0" max="100" step="5" value="${E[id]}" data-id="${id}"><span class="n">${E[id]}%</span></div>`; }
 
 /* ---------- TORNEO ---------- */
+let formDirty=false;
+const stp = (cls, label, big) => `<span class="stp ${big?'big':''}" data-c="${cls}"><span>${label}</span><button type="button" data-d="-1">–</button><b>0</b><button type="button" data-d="1">+</button></span>`;
 function renderTorneo(){
+  formDirty=false;
   const M=S.matches; const st=Object.fromEntries(P.map(p=>[p.id,{pj:0,g:0,a:0,ta:0,tr:0}]));
-  let W=0,D=0,Lo=0,GF=0,GC=0;
-  for(const m of M){ GF+=+m.gf; GC+=+m.gc; m.gf>m.gc?W++:m.gf==m.gc?D++:Lo++;
+  let Wn=0,D=0,Lo=0,GF=0,GC=0;
+  for(const m of M){ GF+=+m.gf; GC+=+m.gc; m.gf>m.gc?Wn++:m.gf==m.gc?D++:Lo++;
     for(const id in m.pl){ const x=m.pl[id], s=st[id]; if(!s) continue; if(x.j){s.pj++;} s.g+=+x.g||0; s.a+=+x.a||0; s.ta+=+x.ta||0; s.tr+=+x.tr||0; } }
-  const rows = P.map(p=>({p,...st[p.id]})).sort((a,b)=>b.g-a.g||b.a-a.a||b.pj-a.pj);
-  const top = rows[0];
-  $('#v-torneo').innerHTML = `
+  const rows = P.map(p=>({p,...st[p.id]})).filter(r=>!r.p.out||r.pj||r.g||r.a).sort((a,b)=>b.g-a.g||b.a-a.a||b.pj-a.pj);
+  const top = rows[0]; const su=suspendedSet();
+  const played = new Set(LIVE?onField(LIVE):[]);
+  $('#v-torneo').innerHTML = `${liveBannerHTML()}
   <div class="kpis">
     <div class="card kpi"><div class="v">${M.length}</div><div class="l">Partidos jugados</div></div>
-    <div class="card kpi"><div class="v"><span class="res-W">${W}</span>-<span class="res-D">${D}</span>-<span class="res-L">${Lo}</span></div><div class="l">Ganados · Empatados · Perdidos</div></div>
+    <div class="card kpi"><div class="v"><span class="res-W">${Wn}</span>-<span class="res-D">${D}</span>-<span class="res-L">${Lo}</span></div><div class="l">Ganados · Empatados · Perdidos</div></div>
     <div class="card kpi"><div class="v">${GF}:${GC}</div><div class="l">Goles a favor : en contra</div></div>
-    <div class="card kpi"><div class="v">${top&&top.g?top.p.n:'—'}</div><div class="l">Goleador ${top&&top.g?'('+top.g+')':''}</div></div>
+    <div class="card kpi"><div class="v">${top&&top.g?esc(top.p.n):'—'}</div><div class="l">Goleador ${top&&top.g?'('+top.g+')':''}</div></div>
   </div>
   <div class="${canEdit()?'two':''}">
-    ${canEdit()?`<div class="card"><h3 style="margin:0 0 8px">Registrar partido</h3>
-      <div class="row"><label class="ctl" style="flex:1">Rival<input type="text" id="tr" placeholder="Nombre del rival"></label><label class="ctl">Fecha<input type="date" id="td"></label></div>
-      <div class="row" style="margin-top:8px"><label class="ctl">Goles a favor<input type="number" id="tgf" min="0" value="0"></label><label class="ctl">Goles en contra<input type="number" id="tgc" min="0" value="0"></label></div>
-      <div class="tw"><table style="margin-top:10px"><tr><th>Jugó</th><th>Jugador</th><th class="n">Gol</th><th class="n">Asist</th><th class="n">🟨</th><th class="n">🟥</th></tr>
-      ${P.map(p=>`<tr data-id="${p.id}"><td><input type="checkbox" class="tj" ${LIVE&&onField(LIVE).includes(p.id)?'checked':''}></td><td>${p.n}</td>
-        <td class="n"><input type="number" class="tg" min="0" value="0"></td><td class="n"><input type="number" class="ta" min="0" value="0"></td>
-        <td class="n"><input type="number" class="tya" min="0" max="2" value="0"></td><td class="n"><input type="number" class="tro" min="0" max="1" value="0"></td></tr>`).join('')}
-      </table></div>
+    ${canEdit()?`<div class="card"><h3 style="margin:0 0 4px">Registrar partido a mano</h3>
+      <p class="note" style="margin:0 0 10px">Si usaste “Partido en vivo” en Cambios, el partido ya quedó registrado.</p>
+      <div class="row"><label class="ctl" style="flex:1 1 160px">Rival<input type="text" id="tr" placeholder="Nombre del rival"></label><label class="ctl">Fecha<input type="date" id="td"></label></div>
+      <div class="row" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">${stp('gf','Goles a favor',1)}${stp('gc','Goles en contra',1)}</div>
+      <div class="mrows">${ACT().map(p=>`<div class="mrow" data-id="${p.id}">
+        <label class="hd"><input type="checkbox" class="tj" ${played.has(p.id)?'checked':''}>${hasNum(p)?`<span class="mut">${esc(p.num)}</span>`:''} ${esc(p.n)}</label>
+        <div class="cnt">${stp('g','⚽')}${stp('a','🅰')}${stp('ya','🟨')}${stp('ro','🟥')}</div></div>`).join('')}</div>
       <button class="btn pri" id="tsave" style="margin-top:12px;width:100%">💾 Guardar partido</button>
     </div>`:''}
     <div>
       <div class="card"><h3 style="margin:0 0 8px">Estadísticas del torneo</h3>
         <div class="tw"><table><tr><th>Jugador</th><th class="n">PJ</th><th class="n">Goles</th><th class="n">Asist</th><th class="n">🟨</th><th class="n">🟥</th></tr>
-        ${rows.map(r=>`<tr><td>${r.p.n}</td><td class="n">${r.pj}</td><td class="n"><b>${r.g}</b></td><td class="n">${r.a}</td><td class="n">${r.ta}</td><td class="n">${r.tr}</td></tr>`).join('')}</table></div>
-        ${rows.some(r=>r.tr>0)?`<p class="note" style="color:var(--warn)">⚠ Revisa las sanciones: ${rows.filter(r=>r.tr>0).map(r=>r.p.n).join(', ')} tienen roja. Márcalos como no disponibles en “Equipo ideal” si están suspendidos.</p>`:''}
+        ${rows.map(r=>`<tr><td>${esc(r.p.n)}${su.has(r.p.id)?' <span class="tag t-bad">Susp.</span>':''}</td><td class="n">${r.pj}</td><td class="n"><b>${r.g}</b></td><td class="n">${r.a}</td><td class="n">${r.ta}</td><td class="n">${r.tr}</td></tr>`).join('')}</table></div>
+        ${su.size?`<p class="note" style="color:var(--warn)">🟥 Suspendidos para el próximo partido (roja en el último): ${[...su].map(nm).join(', ')}. Ya aparecen como no disponibles.</p>`:''}
       </div>
       <div class="card" style="margin-top:14px"><h3 style="margin:0 0 4px">Partidos</h3>
-        ${M.length?M.map((m,ix)=>`<div class="mline"><div><b>vs ${esc(m.rival)}</b><div class="mut" style="font-size:12px">${esc(m.fecha||'')}${scorers(m)}</div></div>
+        ${M.length?M.map((m,ix)=>[m,ix]).sort((a,b)=>(b[0].fecha||'').localeCompare(a[0].fecha||'')||b[1]-a[1]).map(([m,ix])=>`<div class="mline"><div><b>vs ${esc(m.rival)}</b><div class="mut" style="font-size:12px">${esc(m.fecha||'')}${scorers(m)}</div></div>
           <div class="row"><span class="score res-${m.gf>m.gc?'W':m.gf==m.gc?'D':'L'}">${m.gf} - ${m.gc}</span>${canEdit()?`<button class="btn sm" data-del="${ix}">Borrar</button>`:''}</div></div>`).join(''):'<p class="mut">Aún no hay partidos registrados.</p>'}
       </div>
       ${canEdit()?'<div class="row" style="margin-top:10px"><button class="btn sm" id="tcopy">Copiar respaldo (JSON)</button></div>':''}
-      <p class="note" id="savenote"></p>
+      <p class="note">${syncNote()}</p>
     </div>
   </div>`;
-  $('#savenote').innerHTML = syncNote();
   if(!canEdit()) return;
   $('#td').value = new Date().toISOString().slice(0,10);
+  const val = el => +el.querySelector('b').textContent;
+  const setv = (el,v) => { el.querySelector('b').textContent=Math.max(0,v); };
+  const sumGoals = () => [...document.querySelectorAll('.mrow [data-c="g"]')].reduce((s,e)=>s+val(e),0);
+  document.querySelectorAll('#v-torneo .stp button').forEach(b=>b.onclick=()=>{ formDirty=true; const s=b.closest('.stp'); setv(s,val(s)+(+b.dataset.d));
+    const row=s.closest('.mrow'); if(row && +b.dataset.d>0) row.querySelector('.tj').checked=true;
+    const gf=$('#v-torneo [data-c="gf"]'); if(s.dataset.c==='g' && val(gf)<sumGoals()) setv(gf,sumGoals()); });
+  document.querySelectorAll('#v-torneo input').forEach(i=>i.addEventListener('input',()=>formDirty=true));
   $('#tsave').onclick=()=>{
     const rival=$('#tr').value.trim(); if(!rival){ toast('Escribe el nombre del rival'); return; }
-    const pl={}; document.querySelectorAll('#v-torneo tr[data-id]').forEach(tr=>{ const q=c=>+tr.querySelector(c).value||0; const j=tr.querySelector('.tj').checked;
-      const x={j:j?1:0,g:q('.tg'),a:q('.ta'),ta:q('.tya'),tr:q('.tro')}; if(x.j||x.g||x.a||x.ta||x.tr) pl[tr.dataset.id]=x; });
-    S.matches.push({rival, fecha:$('#td').value, gf:+$('#tgf').value||0, gc:+$('#tgc').value||0, pl});
-    save('Partido guardado'); renderTorneo();
+    const pl={}; document.querySelectorAll('#v-torneo .mrow').forEach(r=>{ const q=c=>val(r.querySelector(`[data-c="${c}"]`)); const j=r.querySelector('.tj').checked;
+      const x={j:j?1:0,g:q('g'),a:q('a'),ta:q('ya'),tr:q('ro')}; if(x.j||x.g||x.a||x.ta||x.tr) pl[r.dataset.id]=x; });
+    S.matches.push({rival, fecha:$('#td').value, gf:val($('#v-torneo [data-c="gf"]')), gc:val($('#v-torneo [data-c="gc"]')), pl});
+    if(S.next && S.next.rival.toLowerCase()===rival.toLowerCase()) S.next=null;
+    save('Partido guardado',['matches','next']); renderTorneo();
   };
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{
     const ix=+b.dataset.del;
     modal(`<h3 style="margin:0 0 8px">¿Borrar el partido vs ${esc(S.matches[ix].rival)}?</h3><p class="mut">No se puede deshacer.</p>
       <div class="row"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn pri" id="cdel">Borrar</button></div>`);
-    $('#cdel').onclick=()=>{ S.matches.splice(ix,1); closeModal(); save('Partido borrado'); renderTorneo(); };
+    $('#cdel').onclick=()=>{ S.matches.splice(ix,1); closeModal(); save('Partido borrado',['matches']); renderTorneo(); };
   });
   $('#tcopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(S)); toast('Respaldo copiado'); }catch(e){ toast('No se pudo copiar'); } };
 }
-function scorers(m){ const g=Object.entries(m.pl).filter(([,x])=>x.g>0).map(([id,x])=>BY[id].n+(x.g>1?' ×'+x.g:'')); return g.length?' · ⚽ '+g.join(', '):''; }
+function scorers(m){ const g=Object.entries(m.pl||{}).filter(([,x])=>x.g>0).map(([id,x])=>esc(nm(id))+(x.g>1?' ×'+x.g:'')); return g.length?' · ⚽ '+g.join(', '):''; }
 
 /* ---------- GUARDADO ---------- */
 let ART=null;
@@ -643,6 +984,7 @@ function buildDoc(){
   const json = JSON.stringify(S).replace(/</g,'\\u003c');
   return PRISTINE.replace(/(<script id="state" type="application\/json">)[\s\S]*?(<\/script>)/, (_,a,b)=>a+json+b);
 }
+
 /* ---------- NUBE (Firebase): el DT edita, todos ven ---------- */
 const FB_CONFIG = {
   apiKey: "AIzaSyDho7j9WOmRMXtkeNI5FMt9UM3IK_zYAbo",
@@ -655,14 +997,17 @@ const FB_CONFIG = {
 const FB_VER = '10.14.1';
 // Correos que pueden editar. La protección real está en las reglas de Firestore (ver CLAUDE.md).
 const EDITORS = ['elkin.cuadros97.ec@gmail.com'];
+const ALL_KEYS = ['matches','lineup','unavailable','stats','roster','next','live'];
 let MODE='cargando', FB=null, user=null, lastUpd=null, remoteExists=null;
 const isDT = () => !!(user && EDITORS.includes(String(user.email||'').toLowerCase()));
 const canEdit = () => MODE==='local' || isDT();
-const plain = o => JSON.parse(JSON.stringify(o));
 const cacheLocal = () => { try{ localStorage.setItem('comfiar_f7_state', JSON.stringify(S)); }catch(e){} };
-function rerender(){ if($('#modal').classList.contains('on')) return; // no interrumpir una edición abierta
+function rerender(){
+  if($('#modal').classList.contains('on')) return;                 // no interrumpir una ventana abierta
+  if(VIEW==='torneo' && formDirty) return;                         // no borrar un partido a medio registrar
   if(VIEW==='cambios' && !canEdit()) return show('plantilla');
-  ({plantilla:renderPlantilla,ideal:renderIdeal,cambios:renderCambios,torneo:renderTorneo})[VIEW](); }
+  RENDER();
+}
 function syncNote(){
   if(MODE==='nube') return `☁️ ${isDT()?'Lo que guardes lo ven todos al instante.':'Datos del DT, se actualizan solos.'}${lastUpd?' Última actualización: '+lastUpd.toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'})+'.':''}`;
   if(MODE==='cargando') return 'Conectando con la nube…';
@@ -673,13 +1018,15 @@ function updateRoleUI(){
   const ideal=document.querySelector('#nav button[data-v="ideal"]');
   ideal.innerHTML = canEdit() ? '<i>⚽</i>Equipo ideal' : '<i>⚽</i>Alineación';
   const b=$('#dtbtn'); b.hidden = MODE!=='nube';
-  b.textContent = isDT() ? '✓ DT' : user ? '👤 Sesión' : '🔒 DT'; b.classList.toggle('on', isDT());
+  b.textContent = isDT() ? '✓ DT' : user ? '👤' : '🔒 DT'; b.classList.toggle('on', isDT());
   rerender();
 }
 function applyRemote(d){
   S.matches=d.matches||[]; S.lineup=d.lineup||null; S.unavailable=d.unavailable||[]; S.stats=d.stats||{};
-  unavailable=new Set(S.unavailable); applyStats(); computeRS();
-  if(!canEdit() || !IDEAL) IDEAL = S.lineup ? plain(S.lineup) : null;
+  S.roster=d.roster||null; S.next=d.next||null; S.live=d.live||null;
+  unavailable=new Set(S.unavailable); rebuild();
+  if(!canEdit() || !IDEAL) IDEAL = okLineup(S.lineup) ? plain(S.lineup) : null;
+  if(canEdit() && S.live && okLineup(S.live.lineup) && !LIVE) LIVE=plain(S.live.lineup);
   lastUpd = d.updatedAt && d.updatedAt.toDate ? d.updatedAt.toDate() : null;
   cacheLocal();
 }
@@ -690,7 +1037,7 @@ async function initCloud(){
     const [A,Au,F] = await Promise.all(['firebase-app.js','firebase-auth.js','firebase-firestore.js'].map(f=>import(base+f)));
     const app=A.initializeApp(FB_CONFIG);
     let db; try{ db=F.initializeFirestore(app,{localCache:F.persistentLocalCache()}); }catch(e){ db=F.getFirestore(app); }
-    FB={Au,F,auth:Au.getAuth(app),ref:F.doc(db,'equipo','estado')};
+    FB={Au,F,db,auth:Au.getAuth(app),ref:F.doc(db,'equipo','estado')};
     MODE='nube';
     Au.onAuthStateChanged(FB.auth, u=>{ user=u; updateRoleUI(); if(isDT() && remoteExists===false) save('Datos subidos a la nube'); });
     F.onSnapshot(FB.ref, snap=>{
@@ -700,6 +1047,7 @@ async function initCloud(){
       else if(isDT()) save('Datos subidos a la nube'); // primera vez: sube lo que el DT tenía guardado
       updateRoleUI();
     }, err=>{ console.warn('Firestore:', err.code||err); });
+    F.onSnapshot(F.collection(db,'asistencia'), qs=>{ const a={}; qs.forEach(d=>a[d.id]=d.data()); ATT=a; rerender(); }, err=>console.warn('Asistencia:', err.code||err));
     updateRoleUI();
   }catch(e){ console.warn('Nube no disponible:', e); MODE='local'; updateRoleUI(); }
 }
@@ -708,13 +1056,13 @@ function dtDialog(){
   if(user){
     modal(`<h3 style="margin:0 0 8px">${isDT()?'Modo DT activo':'Sesión iniciada'}</h3>
       <p>Cuenta: <b>${esc(user.email)}</b></p>
-      ${isDT()?'<p class="mut">Puedes editar estadísticas, armar la alineación, hacer cambios y registrar partidos. Todo lo que guardes lo ven los jugadores.</p>':'<div class="rule ko">Esta cuenta no tiene permiso para editar. Solo puedes ver.</div>'}
+      ${isDT()?'<p class="mut">Puedes editar la plantilla, armar la alineación, dirigir el partido en vivo y registrar resultados. Todo lo que guardes lo ven los jugadores.</p>':'<div class="rule ko">Esta cuenta no tiene permiso para editar. Solo puedes ver.</div>'}
       <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="btn" onclick="closeModal()">Cerrar</button><button class="btn" id="dout">Cerrar sesión</button></div>`);
-    $('#dout').onclick=async()=>{ await FB.Au.signOut(FB.auth); closeModal(); IDEAL=S.lineup?plain(S.lineup):null; LIVE=null; updateRoleUI(); toast('Sesión cerrada'); };
+    $('#dout').onclick=async()=>{ await FB.Au.signOut(FB.auth); closeModal(); IDEAL=okLineup(S.lineup)?plain(S.lineup):null; LIVE=null; updateRoleUI(); toast('Sesión cerrada'); };
     return;
   }
   modal(`<h3 style="margin:0 0 4px">Acceso del DT</h3><p class="mut" style="margin:0 0 12px">Solo el cuerpo técnico puede editar. Los jugadores no necesitan iniciar sesión.</p>
-    <form class="login" id="dform">
+    <form class="form" id="dform">
       <label class="ctl">Correo<input type="email" id="dmail" autocomplete="username" required></label>
       <label class="ctl">Contraseña<input type="password" id="dpass" autocomplete="current-password" required></label>
       <div class="rule ko" id="derr" style="display:none"></div>
@@ -728,39 +1076,52 @@ function dtDialog(){
   $('#dreset').onclick=async()=>{ const m=$('#dmail').value.trim(); if(!m) return err('Escribe tu correo arriba y vuelve a tocar aquí.');
     try{ await FB.Au.sendPasswordResetEmail(FB.auth,m); err(''); toast('Te enviamos un correo para cambiar la contraseña'); }catch(x){ err(AUTH_ERR[x.code]||'No se pudo enviar el correo.'); } };
 }
-function renderAlineacion(){
-  const L=S.lineup && onField(S.lineup).length===7 ? S.lineup : null;
-  if(!L){ $('#v-ideal').innerHTML=`<div class="card"><h3 style="margin:0 0 6px">Alineación</h3><p class="mut">${MODE==='cargando'?'Cargando…':'El DT todavía no ha publicado la alineación.'}</p></div>`; return; }
-  const bench=P.map(p=>p.id).filter(id=>!onField(L).includes(id) && !unavailable.has(id));
-  const out=P.filter(p=>unavailable.has(p.id));
-  $('#v-ideal').innerHTML=`<div class="two"><div>${pitchHTML(L,{mode:'equilibrado'})}<p class="note">El número es el rendimiento de cada jugador en su posición.</p></div>
-    <div><div class="card"><div class="ctl">Alineación del DT · ${L.formation}</div><div class="ovr">${f1(teamScore(L,'equilibrado'))}</div><div class="ctl">Fuerza del equipo</div>${ruleHTML(L)}
-      <div class="lines"><div><span>Ataque</span><b>${f1(lineAvg(L,['t','r']))}</b></div><div><span>Defensa</span><b>${f1(lineAvg(L,['d']))}</b></div><div><span>Físico / velocidad</span><b>${f1(lineAvg(L,['f','v']))}</b></div></div></div>
-      <div class="card" style="margin-top:14px"><h3 style="margin:0 0 6px">Suplentes</h3><div class="chips">${bench.map(id=>`<span class="chip ${VET(id)?'vet':''}">${BY[id].n}</span>`).join('')||'<span class="mut">Sin suplentes</span>'}</div>
-      ${out.length?`<h3 style="margin:12px 0 6px">No disponibles</h3><div class="chips">${out.map(p=>`<span class="chip off">${p.n}</span>`).join('')}</div>`:''}</div>
-      <p class="note">${syncNote()}</p></div></div>`;
-}
-async function save(msg){
+/* Guarda solo los campos indicados, para que dos dispositivos no se pisen los cambios.
+   msg = null → guardado silencioso (sin aviso). */
+async function save(msg, keys){
+  keys = keys || ALL_KEYS;
   S.unavailable=[...unavailable];
+  cacheLocal();
   if(MODE==='nube'){
     if(!isDT()){ toast('Solo el DT puede guardar cambios'); return; }
-    cacheLocal();
-    FB.F.setDoc(FB.ref, {...plain(S), updatedAt:FB.F.serverTimestamp(), updatedBy:user.email})
-      .then(()=>{ remoteExists=true; })
-      .catch(e=>toast(e.code==='permission-denied'?'Sin permiso para guardar en la nube':'No se pudo guardar en la nube'));
-    toast(msg+' · visible para todos'); return;
+    const data={updatedAt:FB.F.serverTimestamp(), updatedBy:user.email}; keys.forEach(k=>data[k]=plain(S[k]));
+    const fail = e => toast(e.code==='permission-denied'?'Sin permiso para guardar en la nube':'No se pudo guardar en la nube');
+    FB.F.updateDoc(FB.ref, data).then(()=>{ remoteExists=true; }).catch(e=>{
+      if(e.code==='not-found'){ const all={updatedAt:FB.F.serverTimestamp(), updatedBy:user.email}; ALL_KEYS.forEach(k=>all[k]=plain(S[k])); return FB.F.setDoc(FB.ref,all).then(()=>{ remoteExists=true; }).catch(fail); }
+      fail(e);
+    });
+    if(msg) toast(msg+' · visible para todos'); return;
   }
-  if(ART){ try{ await ART.publish(buildDoc()); toast(msg); return; }
+  if(ART){ try{ await ART.publish(buildDoc()); if(msg) toast(msg); return; }
     catch(e){ const c=e&&(e.code||e.name||e.message)||''; if(String(c).includes('conflict')){ toast('Otra persona guardó al mismo tiempo; recargando'); return; }
       if(/not_granted|not_writer/.test(String(c))){ toast('Solo lectura: no puedes guardar cambios'); return; } } }
-  try{ localStorage.setItem('comfiar_f7_state', JSON.stringify(S)); toast(msg+' (en este navegador)'); }catch(e){ toast('No se pudo guardar'); }
+  if(msg) toast(msg+' (en este dispositivo)');
 }
+
+/* ---------- MODO CLARO / OSCURO ---------- */
+function applyTheme(){
+  const light=document.documentElement.dataset.theme==='light';
+  $('#thbtn').textContent = light ? '🌙' : '☀️';
+  document.querySelector('meta[name=theme-color]').content = light ? '#eef2ec' : '#0b1410';
+}
+$('#thbtn').onclick=()=>{ const light=document.documentElement.dataset.theme!=='light';
+  if(light) document.documentElement.dataset.theme='light'; else delete document.documentElement.dataset.theme;
+  try{ localStorage.setItem('comfiar_theme', light?'light':'dark'); }catch(e){} applyTheme(); };
+
 /* ---------- APP INSTALABLE (PWA: teléfono y PC) ---------- */
 let installEvt=null;
 function setupPWA(){
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
   const web = /^https?:$/.test(location.protocol) && !window.claude;
-  if(web && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if(web && 'serviceWorker' in navigator){
+    let had = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', ()=>{ if(had) showUpdate(); had=true; });
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      const check=()=>reg.update().catch(()=>{});
+      document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') check(); });
+      setInterval(check, 30*60*1000);
+    }).catch(()=>{});
+  }
   const b=$('#install'); if(!b || standalone || !web) return;
   b.hidden=false;
   window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; });
@@ -769,6 +1130,13 @@ function setupPWA(){
     if(installEvt){ installEvt.prompt(); await installEvt.userChoice.catch(()=>{}); installEvt=null; return; }
     installGuide();
   };
+}
+function showUpdate(){
+  if($('#upd')) return;
+  const d=document.createElement('div'); d.className='upd'; d.id='upd';
+  d.innerHTML='<span>✨ Hay una versión nueva de la app</span><button class="btn sm pri">Actualizar</button>';
+  d.querySelector('button').onclick=()=>location.reload();
+  document.body.appendChild(d);
 }
 const SHARE_IC = `<svg width="18" height="22" viewBox="0 0 18 22" style="vertical-align:-5px"><path d="M9 1v13M4.5 5.5 9 1l4.5 4.5" fill="none" stroke="#4da3ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 9H2.5v11.5h13V9H12" fill="none" stroke="#4da3ff" stroke-width="2" stroke-linejoin="round"/></svg>`;
 const ADD_IC = `<svg width="20" height="20" viewBox="0 0 20 20" style="vertical-align:-4px"><rect x="1.5" y="1.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10 6v8M6 10h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
@@ -806,14 +1174,16 @@ function installGuide(UA = navigator.userAgent){
   const c=$('#icopy'); if(c) c.onclick=async()=>{ try{ await navigator.clipboard.writeText(link); toast('Enlace copiado'); }catch(e){ toast(link); } };
 }
 (function boot(){
-  if(!S.matches.length && !S.lineup && !Object.keys(S.stats||{}).length){ try{ const ls=JSON.parse(localStorage.getItem('comfiar_f7_state')||'null'); if(ls){ S=ls; S.matches=S.matches||[]; S.unavailable=S.unavailable||[]; unavailable=new Set(S.unavailable); IDEAL=S.lineup?JSON.parse(JSON.stringify(S.lineup)):null; LIVE=IDEAL?JSON.parse(JSON.stringify(IDEAL)):null; } }catch(e){} }
-  applyStats(); computeRS();
+  const empty = !S.matches.length && !S.lineup && !Object.keys(S.stats).length;
+  if(empty){ try{ const ls=JSON.parse(localStorage.getItem('comfiar_f7_state')||'null'); if(ls){ S=ls; normS(); unavailable=new Set(S.unavailable);
+    IDEAL=okLineup(S.lineup)?plain(S.lineup):null; LIVE=S.live&&okLineup(S.live.lineup)?plain(S.live.lineup):IDEAL?plain(IDEAL):null; } }catch(e){} }
+  rebuild(); applyTheme();
   updateRoleUI(); show(location.hash.slice(1));
   setupPWA();
   $('#dtbtn').onclick=()=>FB&&dtDialog();
   initCloud();
   if(window.claude && typeof window.claude.use==='function'){
-    window.claude.use('artifact').then(a=>{ ART=a; if(location.hash==='#torneo') renderTorneo(); }).catch(()=>{});
+    window.claude.use('artifact').then(a=>{ ART=a; rerender(); }).catch(()=>{});
   }
 })();
 </script>
