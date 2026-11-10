@@ -1,6 +1,6 @@
 // Service worker de Comfiar F7: permite instalar la app y usarla sin internet.
 // Sube VERSION cada vez que publiques cambios para que los teléfonos se actualicen.
-const VERSION = 'comfiar-f7-20261109-102007';
+const VERSION = 'comfiar-f7-20261110-152256';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 

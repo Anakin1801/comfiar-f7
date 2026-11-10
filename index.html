@@ -141,7 +141,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .sbig span:first-child{text-align:right}
 .sbig b{font-size:52px;line-height:1}
 .sbig i{font-style:normal;font-size:30px;color:var(--mut)}
-.lbtn{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+.lbtn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .lbtn .btn{padding:12px 8px}
 .evs{margin-top:10px;display:grid;gap:4px}
 .ev{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:6px 8px;background:var(--panel2);border-radius:8px}
@@ -306,7 +306,8 @@ const FIT = {
  'Mediocentro':{POR:.35,DEF:.9,MED:1,DEL:.85},
  'Alero':{POR:.35,DEF:.85,MED:1,DEL:.92},
  'Delantero':{POR:.35,DEF:.6,MED:.8,DEL:1},
- 'Delantero / Arquero':{POR:.9,DEF:.6,MED:.8,DEL:1}
+ 'Delantero / Arquero':{POR:.9,DEF:.6,MED:.8,DEL:1},
+ 'Polifuncional':{POR:.45,DEF:.92,MED:.95,DEL:.92}   // rinde parejo en defensa, medio y ataque
 };
 const W = {POR:{d:.5,f:.2,p:.15,v:.15},DEF:{d:.45,f:.2,v:.15,p:.15,r:.05},MED:{p:.3,r:.2,d:.15,f:.15,v:.1,t:.1},DEL:{t:.4,r:.2,v:.2,p:.1,f:.1}};
 const MODES = {
@@ -489,7 +490,9 @@ function editNext(){
 const liveScore = () => { const ev=(S.live&&S.live.ev)||[]; return {gf:ev.filter(e=>e.k==='g').length, gc:ev.filter(e=>e.k==='gc').length}; };
 const liveMin = () => S.live&&S.live.start ? Math.max(1,Math.floor((Date.now()-S.live.start)/60000)+1) : 0;
 const EV_TXT = e => e.k==='g'?`⚽ Gol de ${e.id?esc(nm(e.id)):'(sin identificar)'}${e.as?` <span class="mut">· asist. ${esc(nm(e.as))}</span>`:''}`
-  : e.k==='a'?`🅰 Asistencia de ${esc(nm(e.id))}` : e.k==='y'?`🟨 Amarilla a ${esc(nm(e.id))}` : e.k==='r'?`🟥 Roja a ${esc(nm(e.id))}` : `🥅 Gol de ${esc(S.live.rival)}`;
+  : e.k==='a'?`🅰 Asistencia de ${esc(nm(e.id))}` : e.k==='y'?`🟨 Amarilla a ${esc(nm(e.id))}` : e.k==='r'?`🟥 Roja a ${esc(nm(e.id))}`
+  : e.k==='sv'?`🧤 Atajada de ${esc(nm(e.id))}`
+  : `🥅 Gol de ${esc(S.live.rival)}${e.gk?` <span class="mut">· ${e.resp?'⚠ responsabilidad de '+esc(nm(e.gk)):'sin responsabilidad del arquero'}</span>`:''}`;
 function liveBannerHTML(){
   if(!S.live) return '';
   const {gf,gc}=liveScore(); const goles=S.live.ev.filter(e=>e.k==='g'&&e.id).map(e=>nm(e.id));
@@ -503,22 +506,34 @@ function liveCardHTML(){
   return `<div class="card livec on">
     <div class="row" style="justify-content:space-between"><span class="ctl" style="color:var(--bad);flex-direction:row;align-items:center;gap:6px"><span class="dotlive"></span>En vivo · <span id="lmin">${liveMin()}'</span></span></div>
     <div class="sbig"><span>Comfiar</span><b>${gf}</b><i>–</i><b>${gc}</b><span>${esc(Lv.rival)}</span></div>
-    <div class="lbtn"><button class="btn pri" id="lgol">⚽ Gol nuestro</button><button class="btn" id="lgc">Gol rival</button><button class="btn" id="lend">🏁 Terminar</button></div>
+    <div class="lbtn"><button class="btn pri" id="lgol">⚽ Gol nuestro</button><button class="btn" id="lsv">🧤 Atajada</button><button class="btn" id="lgc">🥅 Gol rival</button><button class="btn" id="lend">🏁 Terminar</button></div>
     <p class="note" style="margin-top:8px">Toca a un jugador en la cancha para anotar gol, asistencia o tarjeta.</p>
     ${Lv.ev.length?`<div class="evs">${Lv.ev.map((e,i)=>[e,i]).reverse().map(([e,i])=>`<div class="ev"><span><b class="mut">${e.min||''}'</b> ${EV_TXT(e)}</span><button data-undo="${i}" title="Deshacer">×</button></div>`).join('')}</div>`:''}
   </div>`;
 }
-function syncPlayed(){ if(!S.live||!LIVE) return; const s=new Set(S.live.played||[]); onField(LIVE).forEach(id=>s.add(id)); S.live.played=[...s]; S.live.lineup=plain(LIVE); }
+function syncPlayed(){ if(!S.live||!LIVE) return; const s=new Set(S.live.played||[]); onField(LIVE).forEach(id=>s.add(id)); S.live.played=[...s];
+  const k=new Set(S.live.gks||[]); if(LIVE.gk) k.add(LIVE.gk); S.live.gks=[...k]; S.live.lineup=plain(LIVE); }
+function rivalGoal(){
+  const gk=LIVE&&LIVE.gk;
+  if(!gk) return addEv({k:'gc'},`Gol de ${S.live.rival}`);
+  modal(`<h3 style="margin:0 0 6px">🥅 Gol de ${esc(S.live.rival)}</h3><p>¿Fue responsabilidad de <b>${esc(nm(gk))}</b>, el arquero?</p>
+    <p class="note" style="margin-top:0">Marca “Sí” cuando el gol se pudo evitar por un error del arquero (rebote, mal despeje, mala salida, tiro atajable).</p>
+    <div class="actg"><button class="btn" id="gcy">⚠ Sí, error del arquero</button><button class="btn pri" id="gcn">No, sin responsabilidad</button></div>
+    <button class="btn" style="width:100%" onclick="closeModal()">Cancelar</button>`);
+  $('#gcy').onclick=()=>{ closeModal(); addEv({k:'gc',gk,resp:true},`Gol de ${S.live.rival} · responsabilidad de ${nm(gk)}`); };
+  $('#gcn').onclick=()=>{ closeModal(); addEv({k:'gc',gk,resp:false},`Gol de ${S.live.rival}`); };
+}
 function addEv(e, msg){ e.min=liveMin(); S.live.ev.push(e); syncPlayed(); save(msg,['live']); renderCambios(); }
 function playerAction(id){
   if(!S.live){ toast('Toca “▶ Iniciar partido” para anotar goles y tarjetas'); return; }
   const others=onField(LIVE).filter(x=>x!==id);
   modal(`<h3 style="margin:0;font-size:24px;text-transform:uppercase">${hasNum(BY[id])?`<span class="mut">${esc(BY[id].num)}</span> `:''}${esc(nm(id))}</h3>
-    <div class="actg"><button class="btn pri" data-act="g">⚽ Gol</button><button class="btn" data-act="a">🅰 Asistencia</button><button class="btn" data-act="y">🟨 Amarilla</button><button class="btn" data-act="r">🟥 Roja</button></div>
+    ${LIVE&&LIVE.gk===id?'<button class="btn pri" data-act="sv" style="width:100%;padding:16px;font-size:16px;margin-top:10px">🧤 Atajada</button>':''}
+    <div class="actg"><button class="btn ${LIVE&&LIVE.gk===id?'':'pri'}" data-act="g">⚽ Gol</button><button class="btn" data-act="a">🅰 Asistencia</button><button class="btn" data-act="y">🟨 Amarilla</button><button class="btn" data-act="r">🟥 Roja</button></div>
     <button class="btn" style="width:100%" onclick="closeModal()">Cancelar</button>`);
   document.querySelectorAll('[data-act]').forEach(b=>b.onclick=()=>{ const k=b.dataset.act; closeModal();
     if(k==='g') pickPlayer(`¿Quién dio la asistencia del gol de ${esc(nm(id))}?`, others, 'Sin asistencia', as=>addEv({k:'g',id,as},`⚽ Gol de ${nm(id)}`));
-    else addEv({k,id}, k==='a'?`Asistencia de ${nm(id)}`:k==='y'?`🟨 Amarilla a ${nm(id)}`:`🟥 Roja a ${nm(id)}`);
+    else addEv({k,id}, k==='sv'?`🧤 Atajada de ${nm(id)}`:k==='a'?`Asistencia de ${nm(id)}`:k==='y'?`🟨 Amarilla a ${nm(id)}`:`🟥 Roja a ${nm(id)}`);
   });
 }
 function startLive(){
@@ -538,7 +553,10 @@ function endLive(){
   $('#lsave').onclick=()=>{
     syncPlayed(); const pl={}; const g=id=>pl[id]=pl[id]||{j:0,g:0,a:0,ta:0,tr:0};
     (S.live.played||[]).forEach(id=>g(id).j=1);
-    for(const e of S.live.ev){ if(e.k==='g'){ if(e.id) g(e.id).g++; if(e.as) g(e.as).a++; } else if(e.k==='a') g(e.id).a++; else if(e.k==='y') g(e.id).ta++; else if(e.k==='r') g(e.id).tr++; }
+    (S.live.gks||[]).forEach(id=>{ const x=g(id); x.pa=1; x.sv=x.sv||0; x.gr=x.gr||0; x.ge=x.ge||0; });
+    for(const e of S.live.ev){ if(e.k==='g'){ if(e.id) g(e.id).g++; if(e.as) g(e.as).a++; } else if(e.k==='a') g(e.id).a++; else if(e.k==='y') g(e.id).ta++; else if(e.k==='r') g(e.id).tr++;
+      else if(e.k==='sv') g(e.id).sv=(g(e.id).sv||0)+1;
+      else if(e.k==='gc' && e.gk){ const x=g(e.gk); x.pa=1; x.gr=(x.gr||0)+1; if(e.resp) x.ge=(x.ge||0)+1; } }
     S.matches.push({rival:S.live.rival, fecha:S.live.fecha, gf, gc, pl});
     S.live=null; if(S.next) S.next=null;
     closeModal(); save('Partido guardado en Torneo',['matches','live','next']); location.hash='torneo';
@@ -566,7 +584,7 @@ function renderPlantilla(){
   </div>
   <div class="row" style="margin-bottom:12px">
     <label class="ctl">Filtrar<select id="pf">
-      ${[['all','Todos'],['Arquero','Arqueros'],['Defensa','Defensas'],['Mediocentro','Mediocentros'],['Alero','Aleros'],['Delantero','Delanteros'],['vet','40 años o más']].map(([v,l])=>`<option value="${v}" ${pFilter===v?'selected':''}>${l}</option>`).join('')}
+      ${[['all','Todos'],['Arquero','Arqueros'],['Defensa','Defensas'],['Mediocentro','Mediocentros'],['Alero','Aleros'],['Delantero','Delanteros'],['Polifuncional','Polifuncionales'],['vet','40 años o más']].map(([v,l])=>`<option value="${v}" ${pFilter===v?'selected':''}>${l}</option>`).join('')}
     </select></label>
     <label class="ctl">Ordenar<select id="ps">
       ${[['ovr','Puntaje'],['num','Número'],['edad','Edad'],['n','Nombre']].map(([v,l])=>`<option value="${v}" ${pSort===v?'selected':''}>${l}</option>`).join('')}
@@ -900,7 +918,8 @@ function renderCambios(){
     $('#lgol').onclick=()=>pickPlayer('¿Quién hizo el gol?', onField(LIVE), 'No sé / gol en contra del rival', id=>{
       if(!id) return addEv({k:'g',id:null},'⚽ Gol de Comfiar');
       pickPlayer(`¿Quién dio la asistencia del gol de ${esc(nm(id))}?`, onField(LIVE).filter(x=>x!==id), 'Sin asistencia', as=>addEv({k:'g',id,as},`⚽ Gol de ${nm(id)}`)); });
-    $('#lgc').onclick=()=>addEv({k:'gc'},`Gol de ${S.live.rival}`);
+    $('#lgc').onclick=rivalGoal;
+    $('#lsv').onclick=()=>{ const gk=LIVE.gk; if(!gk) return toast('No hay arquero en cancha'); addEv({k:'sv',id:gk},`🧤 Atajada de ${nm(gk)}`); };
     $('#lend').onclick=endLive;
     document.querySelectorAll('[data-undo]').forEach(b=>b.onclick=()=>{ S.live.ev.splice(+b.dataset.undo,1); save('Evento eliminado',['live']); renderCambios(); });
   }
@@ -913,10 +932,12 @@ let formDirty=false;
 const stp = (cls, label, big) => `<span class="stp ${big?'big':''}" data-c="${cls}"><span>${label}</span><button type="button" data-d="-1">–</button><b>0</b><button type="button" data-d="1">+</button></span>`;
 function renderTorneo(){
   formDirty=false;
-  const M=S.matches; const st=Object.fromEntries(P.map(p=>[p.id,{pj:0,g:0,a:0,ta:0,tr:0}]));
+  const M=S.matches; const st=Object.fromEntries(P.map(p=>[p.id,{pj:0,g:0,a:0,ta:0,tr:0,pa:0,sv:0,gr:0,ge:0,vi:0}]));
   let Wn=0,D=0,Lo=0,GF=0,GC=0;
   for(const m of M){ GF+=+m.gf; GC+=+m.gc; m.gf>m.gc?Wn++:m.gf==m.gc?D++:Lo++;
-    for(const id in m.pl){ const x=m.pl[id], s=st[id]; if(!s) continue; if(x.j){s.pj++;} s.g+=+x.g||0; s.a+=+x.a||0; s.ta+=+x.ta||0; s.tr+=+x.tr||0; } }
+    for(const id in m.pl){ const x=m.pl[id], s=st[id]; if(!s) continue; if(x.j){s.pj++;} s.g+=+x.g||0; s.a+=+x.a||0; s.ta+=+x.ta||0; s.tr+=+x.tr||0;
+      if(x.pa){ s.pa++; s.sv+=+x.sv||0; s.gr+=+x.gr||0; s.ge+=+x.ge||0; if(!(+x.gr)) s.vi++; } } }
+  const gkRows = P.map(p=>({p,...st[p.id]})).filter(r=>r.pa>0).sort((a,b)=>b.pa-a.pa||b.sv-a.sv);
   const rows = P.map(p=>({p,...st[p.id]})).filter(r=>!r.p.out||r.pj||r.g||r.a).sort((a,b)=>b.g-a.g||b.a-a.a||b.pj-a.pj);
   const top = rows[0]; const su=suspendedSet();
   const played = new Set(LIVE?onField(LIVE):[]);
@@ -934,10 +955,18 @@ function renderTorneo(){
       <div class="row" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">${stp('gf','Goles a favor',1)}${stp('gc','Goles en contra',1)}</div>
       <div class="mrows">${ACT().map(p=>`<div class="mrow" data-id="${p.id}">
         <label class="hd"><input type="checkbox" class="tj" ${played.has(p.id)?'checked':''}>${hasNum(p)?`<span class="mut">${esc(p.num)}</span>`:''} ${esc(p.n)}</label>
-        <div class="cnt">${stp('g','⚽')}${stp('a','🅰')}${stp('ya','🟨')}${stp('ro','🟥')}</div></div>`).join('')}</div>
+        <div class="cnt">${stp('g','⚽')}${stp('a','🅰')}${stp('ya','🟨')}${stp('ro','🟥')}</div>
+        ${p.pos.includes('Arquero')||(LIVE&&LIVE.gk===p.id)?`<div class="ctl" style="margin-top:8px">Como arquero</div><div class="cnt">${stp('sv','🧤 Atajadas')}${stp('gr','🥅 Recibidos')}${stp('ge','⚠ Con resp.')}</div>`:''}</div>`).join('')}</div>
       <button class="btn pri" id="tsave" style="margin-top:12px;width:100%">💾 Guardar partido</button>
     </div>`:''}
     <div>
+      <div class="card" style="margin-bottom:14px"><h3 style="margin:0 0 4px">Arqueros</h3>
+        <p class="note" style="margin:0 0 8px">Lo principal del arquero: atajadas y goles encajados con responsabilidad suya.</p>
+        ${gkRows.length?`<div class="tw"><table><tr><th>Arquero</th><th class="n">PJ</th><th class="n">🧤 Atajadas</th><th class="n">⚠ Con resp.</th><th class="n">🥅 Recibidos</th><th class="n">Invicto</th></tr>
+        ${gkRows.map(r=>`<tr><td>${esc(r.p.n)}</td><td class="n">${r.pa}</td><td class="n"><b>${r.sv}</b></td><td class="n"><b class="${r.ge?'out':''}">${r.ge}</b></td><td class="n">${r.gr}</td><td class="n">${r.vi}</td></tr>`).join('')}</table></div>
+        <p class="note">Promedio por partido: ${gkRows.map(r=>`${esc(r.p.n)} ${f1(r.sv/r.pa)} atajadas y ${f1(r.ge/r.pa)} goles con responsabilidad`).join(' · ')}. “Invicto” = partidos sin recibir gol.</p>`
+        :'<p class="mut">Aún no hay datos de arqueros. En el partido en vivo toca al arquero → 🧤 Atajada, y en cada gol rival indica si fue su responsabilidad.</p>'}
+      </div>
       <div class="card"><h3 style="margin:0 0 8px">Estadísticas del torneo</h3>
         <div class="tw"><table><tr><th>Jugador</th><th class="n">PJ</th><th class="n">Goles</th><th class="n">Asist</th><th class="n">🟨</th><th class="n">🟥</th></tr>
         ${rows.map(r=>`<tr><td>${esc(r.p.n)}${su.has(r.p.id)?' <span class="tag t-bad">Susp.</span>':''}</td><td class="n">${r.pj}</td><td class="n"><b>${r.g}</b></td><td class="n">${r.a}</td><td class="n">${r.ta}</td><td class="n">${r.tr}</td></tr>`).join('')}</table></div>
@@ -958,12 +987,16 @@ function renderTorneo(){
   const sumGoals = () => [...document.querySelectorAll('.mrow [data-c="g"]')].reduce((s,e)=>s+val(e),0);
   document.querySelectorAll('#v-torneo .stp button').forEach(b=>b.onclick=()=>{ formDirty=true; const s=b.closest('.stp'); setv(s,val(s)+(+b.dataset.d));
     const row=s.closest('.mrow'); if(row && +b.dataset.d>0) row.querySelector('.tj').checked=true;
-    const gf=$('#v-torneo [data-c="gf"]'); if(s.dataset.c==='g' && val(gf)<sumGoals()) setv(gf,sumGoals()); });
+    const gf=$('#v-torneo [data-c="gf"]'); if(s.dataset.c==='g' && val(gf)<sumGoals()) setv(gf,sumGoals());
+    if(row && s.dataset.c==='ge'){ const gr=row.querySelector('[data-c="gr"]'); if(val(gr)<val(s)) setv(gr,val(s)); }
+    if(row && (s.dataset.c==='gr'||s.dataset.c==='ge')){ const gr=row.querySelector('[data-c="gr"]'), gc=$('#v-torneo [data-c="gc"]'); if(val(gc)<val(gr)) setv(gc,val(gr)); } });
   document.querySelectorAll('#v-torneo input').forEach(i=>i.addEventListener('input',()=>formDirty=true));
   $('#tsave').onclick=()=>{
     const rival=$('#tr').value.trim(); if(!rival){ toast('Escribe el nombre del rival'); return; }
     const pl={}; document.querySelectorAll('#v-torneo .mrow').forEach(r=>{ const q=c=>val(r.querySelector(`[data-c="${c}"]`)); const j=r.querySelector('.tj').checked;
-      const x={j:j?1:0,g:q('g'),a:q('a'),ta:q('ya'),tr:q('ro')}; if(x.j||x.g||x.a||x.ta||x.tr) pl[r.dataset.id]=x; });
+      const x={j:j?1:0,g:q('g'),a:q('a'),ta:q('ya'),tr:q('ro')};
+      if(r.querySelector('[data-c="sv"]')){ const sv=q('sv'), gr=q('gr'), ge=q('ge'); if(sv||gr||ge||(LIVE&&LIVE.gk===r.dataset.id&&j)){ Object.assign(x,{pa:1,sv,gr,ge}); x.j=1; } }
+      if(x.j||x.g||x.a||x.ta||x.tr) pl[r.dataset.id]=x; });
     S.matches.push({rival, fecha:$('#td').value, gf:val($('#v-torneo [data-c="gf"]')), gc:val($('#v-torneo [data-c="gc"]')), pl});
     if(S.next && S.next.rival.toLowerCase()===rival.toLowerCase()) S.next=null;
     save('Partido guardado',['matches','next']); renderTorneo();
